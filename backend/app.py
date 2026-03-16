@@ -7,23 +7,42 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-MODEL_PATH    = 'model/isl_model.h5'
+WEIGHTS_PATH  = 'model/weights.npz'
 LABELMAP_PATH = 'model/label_map.json'
 
 model     = None
 label_map = None
 
+def build_model(num_classes):
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
+    m = Sequential([
+        Dense(256, activation='relu', input_shape=(63,)),
+        BatchNormalization(),
+        Dropout(0.3),
+        Dense(128, activation='relu'),
+        BatchNormalization(),
+        Dropout(0.3),
+        Dense(64, activation='relu'),
+        Dropout(0.2),
+        Dense(num_classes, activation='softmax')
+    ])
+    return m
+
 def load_model():
     global model, label_map
     try:
-        from tensorflow.keras.models import load_model as keras_load
-        model = keras_load(MODEL_PATH)
         with open(LABELMAP_PATH, 'r') as f:
             label_map = json.load(f)
+        num_classes = len(label_map)
+        model = build_model(num_classes)
+        weights_data = np.load(WEIGHTS_PATH, allow_pickle=True)
+        weights = [weights_data[f'arr_{i}'] for i in range(len(weights_data.files))]
+        model.set_weights(weights)
         print("Model loaded successfully")
         print(f"Signs: {list(label_map.values())}")
     except Exception as e:
-        print(f"Model not loaded yet: {e}")
+        print(f"Model not loaded: {e}")
         print("Running in mock mode")
 
 @app.route('/', methods=['GET'])

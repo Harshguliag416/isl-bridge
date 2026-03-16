@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISL Bridge — Live Detection</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #07070F;
+    color: #E0E0F0;
+    font-family: 'Courier New', monospace;
+    min-height: 100vh;
+  }
+
+  /* Top bar */
+  .topbar {
+    background: #0A0A18;
+    border-bottom: 1px solid #1A1A3A;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo-icon { font-size: 20px; }
+  .logo-name { font-size: 16px; font-weight: bold; color: #fff; }
+  .logo-team { font-size: 10px; color: #44446A; margin-top: 2px; }
+  .topbar-btns { display: flex; gap: 8px; }
+  .btn-small {
+    border: 1px solid #1A1A3A;
+    background: #0F0F1E;
+    color: #E0E0F0;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .btn-small.accent { border-color: #00F5D4; color: #00F5D4; }
+
+  /* Main layout */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 16px;
+    padding: 16px;
+    max-width: 1100px;
+    margin: 0 auto;
+    height: calc(100vh - 60px);
+  }
+
+  /* Camera section */
+  .camera-section { display: flex; flex-direction: column; gap: 12px; }
+  .camera-wrap {
+    position: relative;
+    background: #0F0F1E;
+    border: 1px solid #1A1A3A;
+    border-radius: 12px;
+    overflow: hidden;
+    flex: 1;
+  }
+  #video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+    display: block;
+  }
+  #canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    transform: scaleX(-1);
+  }
+  .camera-overlay-text {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: #00000080;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #00F5D4;
+  }
+  .sign-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, #00000090);
+    padding: 20px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .sign-big { font-size: 48px; font-weight: bold; color: #fff; }
+  .conf-badge {
+    background: #00000060;
+    border: 1px solid #00F5D4;
+    color: #00F5D4;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  /* Controls */
+  .controls { display: flex; gap: 10px; }
+  .btn-primary {
+    flex: 1;
+    background: #00F5D4;
+    color: #07070F;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn-primary.active {
+    background: #07070F;
+    border: 1.5px solid #00F5D4;
+    color: #00F5D4;
+  }
+  .btn-clear {
+    background: #0F0F1E;
+    color: #44446A;
+    border: 1px solid #1A1A3A;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  /* Right panel */
+  .panel { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+
+  .card {
+    background: #0F0F1E;
+    border: 1px solid #1A1A3A;
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .card-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: #44446A;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* Status card */
+  .status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .status-dot.green { background: #00F5D4; box-shadow: 0 0 6px #00F5D4; }
+  .status-dot.red   { background: #F72585; }
+  .status-dot.yellow{ background: #FFD166; }
+  .status-text { font-size: 12px; color: #8888AA; }
+
+  /* Output card */
+  .output-sign {
+    font-size: 52px;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 4px;
+    min-height: 64px;
+  }
+  .output-hindi { font-size: 20px; color: #00F5D4; margin-bottom: 12px; }
+  .output-placeholder { font-size: 13px; color: #2A2A4A; font-style: italic; }
+  .output-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .meta-badge {
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid #00F5D440;
+    color: #00F5D4;
+  }
+
+  /* Speak button */
+  .btn-speak {
+    width: 100%;
+    background: #001A12;
+    border: 1px solid #00F5D440;
+    color: #00F5D4;
+    padding: 10px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* History */
+  .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #080818;
+    border-radius: 6px;
+    border: 1px solid #111128;
+  }
+  .history-sign { font-size: 14px; font-weight: bold; color: #fff; }
+  .history-conf { font-size: 11px; color: #44446A; }
+  .history-empty { font-size: 12px; color: #2A2A4A; font-style: italic; }
+
+  /* Mode B tab */
+  .mode-tab {
+    background: #0F0F1E;
+    border: 1px solid #1A1A3A;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    color: #44446A;
+    width: 100%;
+  }
+
+  /* Lang toggle */
+  .lang-toggle {
+    display: flex;
+    background: #080818;
+    border: 1px solid #1A1A3A;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .lang-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #44446A;
+  }
+  .lang-btn.active { background: #00F5D420; color: #00F5D4; }
+
+  @media (max-width: 700px) {
+    .main { grid-template-columns: 1fr; height: auto; }
+    .camera-wrap { height: 300px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="logo">
+    <span class="logo-icon">⚡</span>
+    <div>
+      <div class="logo-name">ISL Bridge</div>
+      <div class="logo-team">Team ALPHA · KCCITM</div>
+    </div>
+  </div>
+  <div class="topbar-btns">
+    <button class="btn-small" onclick="toggleTheme()" id="themeBtn">☀️ Light</button>
+    <button class="btn-small accent" onclick="toggleMode()">↔ Mode B</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Camera section -->
+  <div class="camera-section">
+    <div class="camera-wrap">
+      <video id="video" autoplay playsinline></video>
+      <canvas id="canvas"></canvas>
+      <div class="camera-overlay-text" id="cameraStatus">⚪ Camera loading...</div>
+      <div class="sign-overlay" id="signOverlay" style="display:none">
+        <div class="sign-big" id="overlaySign">A</div>
+        <div class="conf-badge" id="overlayConf">95%</div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn-primary" id="startBtn" onclick="toggleDetection()">
+        Start Signing
+      </button>
+      <button class="btn-clear" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="panel">
+
+    <!-- Status -->
+    <div class="card">
+      <div class="card-label">System Status</div>
+      <div class="status-row">
+        <div class="status-dot" id="camDot" style="background:#FFD166"></div>
+        <div class="status-text" id="camStatus">Camera: Loading...</div>
+      </div>
+      <div class="status-row">
+        <div class="status-dot" id="mpDot" style="background:#FFD166"></div>
+        <div class="status-text" id="mpStatus">MediaPipe: Loading...</div>
+      </div>
+      <div class="status-row">
+        <div class="status-dot" id="aiDot" style="background:#FFD166"></div>
+        <div class="status-text" id="aiStatus">AI Model: Connecting...</div>
+      </div>
+    </div>
+
+    <!-- Language -->
+    <div class="card">
+      <div class="card-label">Language</div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">English</button>
+        <button class="lang-btn" id="btnHI" onclick="setLang('hi')">हिंदी</button>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="card" id="outputCard">
+      <div class="card-label" id="outputLabel">DETECTED SIGN</div>
+      <div id="outputArea">
+        <div class="output-placeholder">Sign output will appear here...</div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="card">
+      <div class="card-label">Recent Signs</div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty">No signs detected yet</div>
+      </div>
+    </div>
+
+    <!-- Switch mode -->
+    <button class="mode-tab" onclick="toggleMode()">
+      🎤 Switch to Voice Mode (Mode B)
+    </button>
+
+  </div>
+</div>
+
+<!-- MediaPipe -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+<script>
+// ── Config ─────────────────────────────────────────────────
+const BACKEND = 'http://127.0.0.1:5000';
+const SIGN_TO_HINDI = {
+  A:'अ', B:'ब', C:'क', D:'ड', E:'ए', F:'फ', G:'ग', H:'ह',
+  I:'इ', J:'ज', K:'क', L:'ल', M:'म', N:'न', O:'ओ', P:'प',
+  Q:'क्यू', R:'र', S:'स', T:'त', U:'यू', V:'व', W:'व',
+  X:'एक्स', Y:'य', Z:'ज़', del:'मिटाएं', nothing:'कुछ नहीं', space:'स्पेस'
+};
+
+// ── State ──────────────────────────────────────────────────
+let detecting    = false;
+let currentLang  = 'en';
+let isDark       = true;
+let lastSend     = 0;
+let history      = [];
+let currentResult = null;
+let hands        = null;
+let camera       = null;
+
+const video   = document.getElementById('video');
+const canvas  = document.getElementById('canvas');
+const ctx     = canvas.getContext('2d');
+
+// ── Init MediaPipe ─────────────────────────────────────────
+async function initMediaPipe() {
+  try {
+    hands = new Hands({
+      locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
+    });
+
+    hands.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence: 0.5,
+    });
+
+    hands.onResults(onResults);
+
+    // Start webcam
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: 640, height: 480 }
+    });
+    video.srcObject = stream;
+
+    camera = new Camera(video, {
+      onFrame: async () => {
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+        await hands.send({ image: video });
+      },
+      width: 640,
+      height: 480,
+    });
+    camera.start();
+
+    setStatus('cam',  true,  'Camera: Active');
+    setStatus('mp',   true,  'MediaPipe: Ready');
+    document.getElementById('cameraStatus').textContent = '🟢 Camera active — show your hand';
+
+  } catch(e) {
+    setStatus('cam', false, 'Camera: ' + e.message);
+    document.getElementById('cameraStatus').textContent = '❌ Camera error: ' + e.message;
+  }
+}
+
+// ── MediaPipe results ──────────────────────────────────────
+function onResults(results) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+    const landmarks = results.multiHandLandmarks[0];
+
+    // Draw landmarks
+    drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: '#00F5D440', lineWidth: 2 });
+    drawLandmarks(ctx, landmarks, { color: '#00F5D4', lineWidth: 1, radius: 3 });
+
+    // Send to backend if detecting
+    if (detecting) {
+      const now = Date.now();
+      if (now - lastSend > 800) {
+        lastSend = now;
+        const coords = landmarks.flatMap(lm => [lm.x, lm.y, lm.z]);
+        sendToBackend(coords);
+      }
+    }
+
+    document.getElementById('cameraStatus').textContent = '🟢 Hand detected';
+  } else {
+    document.getElementById('cameraStatus').textContent =
+      detecting ? '✋ Show your hand clearly' : '⚪ Position your hand';
+  }
+}
+
+// ── Send landmarks to Flask ────────────────────────────────
+async function sendToBackend(landmarks) {
+  try {
+    const res = await fetch(`${BACKEND}/predict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ landmarks }),
+    });
+    const data = await res.json();
+    showResult(data);
+  } catch(e) {
+    console.log('Backend error:', e);
+  }
+}
+
+// ── Show result ────────────────────────────────────────────
+function showResult(data) {
+  currentResult = data;
+  const sign   = data.sign;
+  const conf   = data.confidence;
+  const hindi  = SIGN_TO_HINDI[sign] || sign;
+  const display = currentLang === 'hi' ? hindi : sign;
+
+  // Update output card
+  document.getElementById('outputArea').innerHTML = `
+    <div class="output-sign">${display}</div>
+    ${currentLang === 'hi' ? `<div class="output-hindi">${sign}</div>` : ''}
+    <div class="output-meta">
+      <span class="meta-badge">${currentLang === 'hi' ? 'सटीकता' : 'Confidence'}: ${conf}%</span>
+      <span class="meta-badge">${data.mode === 'model' ? '🧠 AI' : '🎭 Demo'}</span>
+    </div>
+    <button class="btn-speak" onclick="speak('${display}')">
+      🔊 ${currentLang === 'hi' ? 'दोबारा बोलें' : 'Speak Again'}
+    </button>
+  `;
+
+  // Camera overlay
+  document.getElementById('signOverlay').style.display = 'flex';
+  document.getElementById('overlaySign').textContent = display;
+  document.getElementById('overlayConf').textContent = conf + '%';
+
+  // Highlight output card
+  document.getElementById('outputCard').style.borderColor = '#00F5D4';
+
+  // Auto speak if high confidence
+  if (conf > 75) speak(display);
+
+  // Add to history
+  addToHistory(sign, conf, hindi);
+}
+
+// ── History ────────────────────────────────────────────────
+function addToHistory(sign, conf, hindi) {
+  history.unshift({ sign, conf, hindi, time: new Date().toLocaleTimeString() });
+  if (history.length > 10) history.pop();
+
+  const list = document.getElementById('historyList');
+  list.innerHTML = history.map(h => `
+    <div class="history-item">
+      <div>
+        <span class="history-sign">${currentLang === 'hi' ? h.hindi : h.sign}</span>
+        <span style="color:#44446A;font-size:10px;margin-left:8px">${h.time}</span>
+      </div>
+      <span class="history-conf">${h.conf}%</span>
+    </div>
+  `).join('');
+}
+
+// ── Speak ──────────────────────────────────────────────────
+function speak(text) {
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = currentLang === 'hi' ? 'hi-IN' : 'en-US';
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+
+// ── Controls ───────────────────────────────────────────────
+function toggleDetection() {
+  detecting = !detecting;
+  const btn = document.getElementById('startBtn');
+  if (detecting) {
+    btn.textContent = currentLang === 'hi' ? 'रोकें' : 'Stop Signing';
+    btn.classList.add('active');
+    document.getElementById('cameraStatus').textContent = '🟢 Detecting signs...';
+  } else {
+    btn.textContent = currentLang === 'hi' ? 'साइन करें' : 'Start Signing';
+    btn.classList.remove('active');
+    document.getElementById('cameraStatus').textContent = '⚪ Detection paused';
+  }
+}
+
+function clearAll() {
+  detecting = false;
+  currentResult = null;
+  history = [];
+  document.getElementById('startBtn').textContent = currentLang === 'hi' ? 'साइन करें' : 'Start Signing';
+  document.getElementById('startBtn').classList.remove('active');
+  document.getElementById('outputArea').innerHTML = `<div class="output-placeholder">${currentLang === 'hi' ? 'साइन का अनुवाद यहाँ दिखेगा...' : 'Sign output will appear here...'}</div>`;
+  document.getElementById('signOverlay').style.display = 'none';
+  document.getElementById('outputCard').style.borderColor = '#1A1A3A';
+  document.getElementById('historyList').innerHTML = `<div class="history-empty">${currentLang === 'hi' ? 'अभी कोई संकेत नहीं' : 'No signs detected yet'}</div>`;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+  document.getElementById('btnHI').classList.toggle('active', lang === 'hi');
+  document.getElementById('outputLabel').textContent = lang === 'hi' ? 'पहचाना गया संकेत' : 'DETECTED SIGN';
+  document.getElementById('startBtn').textContent = lang === 'hi' ? 'साइन करें' : 'Start Signing';
+}
+
+function toggleMode() {
+  alert('Mode B (Voice → Text) is available in the React Native app. Open Expo app on your phone!');
+}
+
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.style.background    = isDark ? '#07070F' : '#F0F4F8';
+  document.body.style.color         = isDark ? '#E0E0F0' : '#0A0A1A';
+  document.getElementById('themeBtn').textContent = isDark ? '☀️ Light' : '🌙 Dark';
+}
+
+// ── Status helpers ─────────────────────────────────────────
+function setStatus(id, ok, text) {
+  document.getElementById(id + 'Dot').style.background = ok ? '#00F5D4' : '#F72585';
+  document.getElementById(id + 'Status').textContent   = text;
+  if (ok && id === 'cam') document.getElementById(id + 'Dot').style.boxShadow = '0 0 6px #00F5D4';
+}
+
+// ── Check backend ──────────────────────────────────────────
+async function checkBackend() {
+  try {
+    const res  = await fetch(`${BACKEND}/health`);
+    const data = await res.json();
+    const ok   = data.model === 'loaded';
+    setStatus('ai', ok, ok
+      ? `AI Model: Ready (${data.signs_count} signs)`
+      : 'AI Model: Not loaded'
+    );
+  } catch {
+    setStatus('ai', false, 'AI Model: Backend offline');
+  }
+}
+
+// ── Start ──────────────────────────────────────────────────
+checkBackend();
+initMediaPipe();
+setInterval(checkBackend, 10000);
+</script>
+</body>
+</html>
