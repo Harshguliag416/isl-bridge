@@ -489,7 +489,7 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
 
     <div class="card">
       <div class="card-label" id="demoTitle">Demo Showcase</div>
-      <div class="demo-hint" id="demoHint">Use these quick presets to demo progress with a few letters and assembled words.</div>
+      <div class="demo-hint" id="demoHint">Tap these demo buttons to show progress with a few letters and assembled words. This section is for demo playback.</div>
       <div class="demo-grid" id="demoButtons"></div>
     </div>
 
@@ -532,11 +532,15 @@ const SIGN_TO_HINDI = {
 };
 const DEMO_PRESETS = [
   { id: 'A', label: 'A', sequence: ['A'], word: 'A' },
+  { id: 'B', label: 'B', sequence: ['B'], word: 'B' },
   { id: 'H', label: 'H', sequence: ['H'], word: 'H' },
   { id: 'W', label: 'W', sequence: ['W'], word: 'W' },
+  { id: 'Y', label: 'Y', sequence: ['Y'], word: 'Y' },
   { id: 'HI', label: 'HI', sequence: ['H', 'I'], word: 'HI' },
   { id: 'HELLO', label: 'HELLO', sequence: ['H', 'E', 'L', 'L', 'O'], word: 'HELLO' },
   { id: 'YES', label: 'YES', sequence: ['Y', 'E', 'S'], word: 'YES' },
+  { id: 'NO', label: 'NO', sequence: ['N', 'O'], word: 'NO' },
+  { id: 'HELP', label: 'HELP', sequence: ['H', 'E', 'L', 'P'], word: 'HELP' },
   { id: 'WATER', label: 'WATER', sequence: ['W', 'A', 'T', 'E', 'R'], word: 'WATER' },
 ];
 
@@ -561,7 +565,7 @@ const COPY = {
     mediapipeLoading: 'MediaPipe: Loading libraries',
     mediapipeError: 'MediaPipe libraries could not be loaded',
     demoTitle: 'Demo Showcase',
-    demoHint: 'Use these quick presets to demo progress with a few letters and assembled words.',
+    demoHint: 'Tap these demo buttons to show progress with a few letters and assembled words. This section is for demo playback.',
     demoWord: 'Demo word',
     demoStatus: 'Demo sequence playing',
   },
@@ -585,7 +589,7 @@ const COPY = {
     mediapipeLoading: 'MediaPipe: Libraries load ho rahi hain',
     mediapipeError: 'MediaPipe libraries load nahi ho paayin',
     demoTitle: 'Demo Showcase',
-    demoHint: 'In quick presets se kuch letters aur assembled words demo mein dikhayein.',
+    demoHint: 'In demo buttons ko tap karke kuch letters aur assembled words dikhayein. Yeh section demo playback ke liye hai.',
     demoWord: 'Demo word',
     demoStatus: 'Demo sequence chal rahi hai',
   },

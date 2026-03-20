@@ -34,7 +34,7 @@ const LANG = {
     preview: 'Preview - position your hand',
     live: 'Live - detecting',
     demoTitle: 'Demo Showcase',
-    demoHint: 'Use these quick presets to show progress with a few letters and assembled words.',
+    demoHint: 'Tap these demo buttons to show progress with a few letters and assembled words. This section is for demo playback.',
     demoPlaying: 'Demo sequence playing...',
     demoWord: 'Demo word',
   },
@@ -59,7 +59,7 @@ const LANG = {
     preview: 'Preview - haath set karein',
     live: 'Live - detection chalu hai',
     demoTitle: 'Demo Showcase',
-    demoHint: 'In quick presets se kuch letters aur assembled words demo mein dikhayein.',
+    demoHint: 'In demo buttons ko tap karke kuch letters aur assembled words dikhayein. Yeh section demo playback ke liye hai.',
     demoPlaying: 'Demo sequence chal rahi hai...',
     demoWord: 'Demo word',
   },
@@ -73,11 +73,15 @@ const SIGN_TO_HINDI = {
 
 const DEMO_PRESETS = [
   { id: 'A', label: 'A', sequence: ['A'], word: 'A' },
+  { id: 'B', label: 'B', sequence: ['B'], word: 'B' },
   { id: 'H', label: 'H', sequence: ['H'], word: 'H' },
   { id: 'W', label: 'W', sequence: ['W'], word: 'W' },
+  { id: 'Y', label: 'Y', sequence: ['Y'], word: 'Y' },
   { id: 'HI', label: 'HI', sequence: ['H', 'I'], word: 'HI' },
   { id: 'HELLO', label: 'HELLO', sequence: ['H', 'E', 'L', 'L', 'O'], word: 'HELLO' },
   { id: 'YES', label: 'YES', sequence: ['Y', 'E', 'S'], word: 'YES' },
+  { id: 'NO', label: 'NO', sequence: ['N', 'O'], word: 'NO' },
+  { id: 'HELP', label: 'HELP', sequence: ['H', 'E', 'L', 'P'], word: 'HELP' },
   { id: 'WATER', label: 'WATER', sequence: ['W', 'A', 'T', 'E', 'R'], word: 'WATER' },
 ];
 
