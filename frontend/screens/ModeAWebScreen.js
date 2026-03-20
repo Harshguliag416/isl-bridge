@@ -1,30 +1,21 @@
-import { useEffect, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { BACKEND_URL, HAS_BACKEND_URL } from '../config';
 import { WEB_MODE_A_HTML } from '../webModeAHtml';
 
+const frameStyle = {
+  display: 'block',
+  width: '100%',
+  height: '100%',
+  border: '0',
+  backgroundColor: '#07070F',
+};
+
 export default function ModeAWebScreen() {
-  const [frameSrc, setFrameSrc] = useState('');
-
-  useEffect(() => {
-    if (Platform.OS !== 'web') {
-      return undefined;
-    }
-
-    const html = WEB_MODE_A_HTML.replace('__BACKEND_URL__', BACKEND_URL || '');
-    const blob = new Blob([html], { type: 'text/html' });
-    const blobUrl = URL.createObjectURL(blob);
-
-    setFrameSrc(blobUrl);
-
-    return () => {
-      URL.revokeObjectURL(blobUrl);
-    };
-  }, []);
-
   if (Platform.OS !== 'web') {
     return null;
   }
+
+  const frameHtml = WEB_MODE_A_HTML.replace('__BACKEND_URL__', BACKEND_URL || '');
 
   return (
     <View style={styles.root}>
@@ -37,12 +28,15 @@ export default function ModeAWebScreen() {
           </Text>
         </View>
       )}
-      <iframe
-        title="ISL Bridge Mode A"
-        src={frameSrc}
-        style={styles.frame}
-        allow="camera; microphone; autoplay"
-      />
+
+      <View style={styles.frameWrap}>
+        <iframe
+          title="ISL Bridge Mode A"
+          srcDoc={frameHtml}
+          style={frameStyle}
+          allow="camera; microphone; autoplay"
+        />
+      </View>
     </View>
   );
 }
@@ -50,6 +44,7 @@ export default function ModeAWebScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    minHeight: 0,
     backgroundColor: '#07070F',
   },
   banner: {
@@ -70,13 +65,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
   },
-  frame: {
+  frameWrap: {
     flex: 1,
-    display: 'block',
-    width: '100%',
-    height: '100%',
-    borderWidth: 0,
-    borderColor: 'transparent',
-    backgroundColor: '#07070F',
+    minHeight: 0,
+    overflow: 'hidden',
   },
 });

@@ -1,4 +1,4 @@
-﻿import { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { AppContext } from '../AppContext';
 
@@ -79,6 +80,14 @@ export default function OnboardingScreen({ navigation }) {
     }
 
     const mode = modes.find((item) => item.id === selectedMode);
+    if (Platform.OS === 'web') {
+      navigation.navigate('Main', {
+        screen: mode.screen,
+        mode: selectedMode,
+      });
+      return;
+    }
+
     navigation.navigate('Permission', {
       targetScreen: 'Main',
       mode: selectedMode,
@@ -87,7 +96,7 @@ export default function OnboardingScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={[styles.root, { backgroundColor: theme.bg }]}> 
+    <SafeAreaView style={[styles.root, { backgroundColor: theme.bg }]}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text style={[styles.team, { color: theme.accentA }]}>{t.team}</Text>
         <Text style={[styles.welcome, { color: theme.text }]}>{t.welcome}</Text>
