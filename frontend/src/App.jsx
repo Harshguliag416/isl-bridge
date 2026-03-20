@@ -166,7 +166,7 @@ function isFingerExtended(hand, tipIndex, pipIndex, mcpIndex) {
   const tip = hand.landmarks[tipIndex];
   const pip = hand.landmarks[pipIndex];
   const mcp = hand.landmarks[mcpIndex];
-  return tip.y < pip.y && pip.y < mcp.y && mcp.y - tip.y > 0.09;
+  return tip.y < pip.y && pip.y < mcp.y && mcp.y - tip.y > 0.05;
 }
 
 function isFingerCurled(hand, tipIndex, pipIndex) {
@@ -187,8 +187,8 @@ function isThumbRaised(hand) {
     thumbTip.y < thumbIp.y &&
     thumbIp.y < thumbMcp.y &&
     thumbMcp.y < thumbCmc.y &&
-    wrist.y - thumbTip.y > 0.12 &&
-    distance2D(thumbTip, indexMcp) > distance2D(thumbMcp, indexMcp) + 0.03
+    wrist.y - thumbTip.y > 0.07 &&
+    distance2D(thumbTip, indexMcp) > distance2D(thumbMcp, indexMcp) + 0.01
   );
 }
 
@@ -198,7 +198,7 @@ function isThumbSideways(hand) {
   const deltaX = Math.abs(thumbTip.x - thumbMcp.x);
   const deltaY = Math.abs(thumbTip.y - thumbMcp.y);
 
-  return deltaX > 0.12 && deltaX > deltaY * 1.25;
+  return deltaX > 0.08 && deltaX > deltaY * 0.9;
 }
 
 function isThumbAcrossPalm(hand) {
@@ -240,7 +240,7 @@ function detectStaticDemoGesture(hand) {
   if (indexExtended && middleCurled && ringCurled && pinkyCurled) {
     const indexTip = hand.landmarks[8];
     const indexMcp = hand.landmarks[5];
-    if (indexTip.z < indexMcp.z - 0.12) {
+    if (indexTip.z < indexMcp.z - 0.05) {
       return { label: "YOU", confidence: 0.98, mode: "demo_point" };
     }
   }
@@ -296,7 +296,7 @@ function detectWaveGesture(frames = []) {
     }
   }
 
-  if (horizontalRange > 0.12 && directionChanges >= 1) {
+  if (horizontalRange > 0.08 && directionChanges >= 1) {
     return { label: "HELLO", confidence: 0.98, mode: "demo_wave" };
   }
 
@@ -391,6 +391,7 @@ function App() {
   const lastSpeechSavedRef = useRef("");
   const sequenceBufferRef = useRef([]);
   const predictionWindowRef = useRef([]);
+  const demoPredictionWindowRef = useRef([]);
 
   const speechRecognition = useSpeechRecognition(language, (text) => {
     setTranslation(text);
@@ -586,6 +587,7 @@ function App() {
     lastPredictionRef.current = 0;
     sequenceBufferRef.current = [];
     predictionWindowRef.current = [];
+    demoPredictionWindowRef.current = [];
   }
 
   function clearAll() {
@@ -597,6 +599,7 @@ function App() {
     lastSpeechSavedRef.current = "";
     sequenceBufferRef.current = [];
     predictionWindowRef.current = [];
+    demoPredictionWindowRef.current = [];
     window.speechSynthesis.cancel();
   }
 
@@ -686,8 +689,28 @@ function App() {
           ...sequenceBufferRef.current.slice(-(MAX_SEQUENCE_FRAMES - 1)),
           { hands },
         ];
+
+        const demoGesture = detectDemoGesture(sequenceBufferRef.current);
+        if (demoGesture) {
+          const nextWindow = [
+            ...demoPredictionWindowRef.current.slice(-(STABLE_PREDICTION_WINDOW - 1)),
+            demoGesture.label,
+          ];
+          demoPredictionWindowRef.current = nextWindow;
+          predictionWindowRef.current = [];
+
+          const stableDemoPrediction = getStablePrediction(nextWindow);
+          if (stableDemoPrediction) {
+            applyPrediction(stableDemoPrediction, demoGesture.confidence, demoGesture.mode);
+            setStatus(`Detected ${stableDemoPrediction}`);
+          }
+        } else {
+          demoPredictionWindowRef.current = [];
+        }
+
         const now = Date.now();
         if (
+          !demoGesture &&
           !inFlightRef.current &&
           sequenceBufferRef.current.length >= MIN_SEQUENCE_FRAMES &&
           now - lastPredictionRef.current > 650
@@ -704,6 +727,7 @@ function App() {
         setStatus(t.noHand);
         sequenceBufferRef.current = [];
         predictionWindowRef.current = [];
+        demoPredictionWindowRef.current = [];
       }
 
       if (cameraRunningRef.current && trackingSessionRef.current === sessionId) {
@@ -1054,4 +1078,7 @@ function App() {
 }
 
 export default App;
+
+
+
 
