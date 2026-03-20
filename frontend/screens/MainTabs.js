@@ -6,6 +6,7 @@ import { WEB_DISPLAY_FONT, WEB_FONT_FAMILY } from '../design';
 import ModeAScreen from './ModeAScreen';
 import ModeAWebScreen from './ModeAWebScreen';
 import ModeBScreen from './ModeBScreen';
+import ModeBWebScreen from './ModeBWebScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -17,7 +18,7 @@ const ICONS = {
 function WebModeSwitcher({ initialTab }) {
   const { theme } = useContext(AppContext);
   const [activeTab, setActiveTab] = useState(initialTab);
-  const ActiveComponent = activeTab === 'ModeB' ? ModeBScreen : ModeAWebScreen;
+  const ActiveComponent = activeTab === 'ModeB' ? ModeBWebScreen : ModeAWebScreen;
 
   useEffect(() => {
     const handleMessage = (event) => {
@@ -88,6 +89,7 @@ export default function MainTabs({ route }) {
   const { theme } = useContext(AppContext);
   const initialTab = route.params?.screen === 'ModeB' ? 'ModeB' : 'ModeA';
   const ModeAComponent = Platform.OS === 'web' ? ModeAWebScreen : ModeAScreen;
+  const ModeBComponent = Platform.OS === 'web' ? ModeBWebScreen : ModeBScreen;
 
   if (Platform.OS === 'web') {
     return <WebModeSwitcher initialTab={initialTab} />;
@@ -117,7 +119,7 @@ export default function MainTabs({ route }) {
         },
       })}>
       <Tab.Screen name="ModeA" component={ModeAComponent} options={{ title: 'Sign to Speech' }} />
-      <Tab.Screen name="ModeB" component={ModeBScreen} options={{ title: 'Speech to Text' }} />
+      <Tab.Screen name="ModeB" component={ModeBComponent} options={{ title: 'Speech to Text' }} />
     </Tab.Navigator>
   );
 }
@@ -172,6 +174,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     gap: 12,
+    cursor: 'pointer',
   },
   modeBar: {
     width: '100%',
