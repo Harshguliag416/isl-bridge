@@ -1,4 +1,4 @@
-import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
+﻿import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const API_URL = (import.meta.env.VITE_API_URL || "").trim() || (import.meta.env.DEV ? "http://localhost:5000" : "https://isl-bridge-backend-ol16.onrender.com");
@@ -55,37 +55,37 @@ const COPY = {
     backendOfflineHint: "The frontend could not reach the backend health endpoint.",
   },
   hi: {
-    badge: "Ã Â¤Â°Ã Â¤Â¿Ã Â¤Â¯Ã Â¤Â²-Ã Â¤Å¸Ã Â¤Â¾Ã Â¤â€¡Ã Â¤Â® Ã Â¤Â¸Ã Â¤Â¾Ã Â¤â€¡Ã Â¤Â¨ Ã Â¤Â²Ã Â¥Ë†Ã Â¤â€šÃ Â¤â€”Ã Â¥ÂÃ Â¤ÂµÃ Â¥â€¡Ã Â¤Å“ Ã Â¤Å¸Ã Â¥ÂÃ Â¤Â°Ã Â¤Â¾Ã Â¤â€šÃ Â¤Â¸Ã Â¤Â²Ã Â¥â€¡Ã Â¤Å¸Ã Â¤Â°",
-    title: "Ã Â¤â€ Ã Â¤Ë†Ã Â¤ÂÃ Â¤Â¸Ã Â¤ÂÃ Â¤Â² Ã Â¤Â¬Ã Â¥ÂÃ Â¤Â°Ã Â¤Â¿Ã Â¤Å“",
+    badge: "ÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¤Ã‚Â¿ÃƒÂ Ã‚Â¤Ã‚Â¯ÃƒÂ Ã‚Â¤Ã‚Â²-ÃƒÂ Ã‚Â¤Ã…Â¸ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã‚Â® ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã‚Â¨ ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¥Ã‹â€ ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã¢â‚¬â€ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚ÂµÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã…â€œ ÃƒÂ Ã‚Â¤Ã…Â¸ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã…Â¸ÃƒÂ Ã‚Â¤Ã‚Â°",
+    title: "ÃƒÂ Ã‚Â¤Ã¢â‚¬Â ÃƒÂ Ã‚Â¤Ã‹â€ ÃƒÂ Ã‚Â¤Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¤Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â² ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¤Ã‚Â¿ÃƒÂ Ã‚Â¤Ã…â€œ",
     subtitle:
-      "Ã Â¤ÂÃ Â¤â€¢ Ã Â¤Â¹Ã Â¥â‚¬ Ã Â¤Â¬Ã Â¥ÂÃ Â¤Â°Ã Â¤Â¾Ã Â¤â€°Ã Â¤Å“Ã Â¤Â¼Ã Â¤Â° Ã Â¤ÂÃ Â¤Âª Ã Â¤Â®Ã Â¥â€¡Ã Â¤â€š sign-to-text, sign-to-speech Ã Â¤â€Ã Â¤Â° speech-to-text communication.",
-    chooseMode: "Ã Â¤Â®Ã Â¥â€¹Ã Â¤Â¡ Ã Â¤Å¡Ã Â¥ÂÃ Â¤Â¨Ã Â¥â€¡Ã Â¤â€š",
-    signToText: "Ã Â¤Â®Ã Â¥â€šÃ Â¤â€¢ -> Ã Â¤Â¬Ã Â¤Â§Ã Â¤Â¿Ã Â¤Â°",
-    signToSpeech: "Ã Â¤Â®Ã Â¥â€šÃ Â¤â€¢ -> Ã Â¤Â¸Ã Â¥ÂÃ Â¤Â¨Ã Â¤Â¨Ã Â¥â€¡ Ã Â¤ÂµÃ Â¤Â¾Ã Â¤Â²Ã Â¤Â¾",
-    speechToText: "Ã Â¤Â¸Ã Â¥ÂÃ Â¤Â¨Ã Â¤Â¨Ã Â¥â€¡ Ã Â¤ÂµÃ Â¤Â¾Ã Â¤Â²Ã Â¤Â¾ -> Ã Â¤Â¬Ã Â¤Â§Ã Â¤Â¿Ã Â¤Â°",
-    startCamera: "Ã Â¤Â¸Ã Â¤Â¾Ã Â¤â€¡Ã Â¤Â¨ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š",
-    stopCamera: "Ã Â¤â€¢Ã Â¥Ë†Ã Â¤Â®Ã Â¤Â°Ã Â¤Â¾ Ã Â¤Â¬Ã Â¤â€šÃ Â¤Â¦ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š",
-    startListening: "Ã Â¤Â¬Ã Â¥â€¹Ã Â¤Â²Ã Â¥â€¡Ã Â¤â€š",
-    stopListening: "Ã Â¤Â¸Ã Â¥ÂÃ Â¤Â¨Ã Â¤Â¨Ã Â¤Â¾ Ã Â¤Â¬Ã Â¤â€šÃ Â¤Â¦ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š",
-    clear: "Ã Â¤Â¸Ã Â¤Â¾Ã Â¤Â«Ã Â¤Â¼ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€š",
-    translation: "Ã Â¤â€¦Ã Â¤Â¨Ã Â¥ÂÃ Â¤ÂµÃ Â¤Â¾Ã Â¤Â¦",
-    confidence: "Ã Â¤ÂµÃ Â¤Â¿Ã Â¤Â¶Ã Â¥ÂÃ Â¤ÂµÃ Â¤Â¾Ã Â¤Â¸",
-    backend: "Ã Â¤Â¬Ã Â¥Ë†Ã Â¤â€¢Ã Â¤ÂÃ Â¤â€šÃ Â¤Â¡ Ã Â¤Â¸Ã Â¥ÂÃ Â¤Å¸Ã Â¥â€¡Ã Â¤Å¸Ã Â¤Â¸",
-    online: "Ã Â¤â€˜Ã Â¤Â¨Ã Â¤Â²Ã Â¤Â¾Ã Â¤â€¡Ã Â¤Â¨",
-    offline: "Ã Â¤â€˜Ã Â¤Â«Ã Â¤Â²Ã Â¤Â¾Ã Â¤â€¡Ã Â¤Â¨",
-    setupNeeded: "Ã Â¤Â¸Ã Â¥â€¡Ã Â¤Å¸Ã Â¤â€¦Ã Â¤Âª Ã Â¤Å¡Ã Â¤Â¾Ã Â¤Â¹Ã Â¤Â¿Ã Â¤Â",
-    heuristic: "Ã Â¤Â¹Ã Â¥ÂÃ Â¤Â¯Ã Â¥â€šÃ Â¤Â°Ã Â¤Â¿Ã Â¤Â¸Ã Â¥ÂÃ Â¤Å¸Ã Â¤Â¿Ã Â¤â€¢ Ã Â¤Â¡Ã Â¥â€¡Ã Â¤Â®Ã Â¥â€¹ Ã Â¤Â®Ã Â¥â€°Ã Â¤Â¡Ã Â¤Â²",
-    trained: "Ã Â¤Å¸Ã Â¥â€¡Ã Â¤â€šÃ Â¤Â¸Ã Â¤Â°Ã Â¤Â«Ã Â¥ÂÃ Â¤Â²Ã Â¥â€¹ Ã Â¤Â®Ã Â¥â€°Ã Â¤Â¡Ã Â¤Â²",
-    output: "Ã Â¤Â²Ã Â¤Â¾Ã Â¤â€¡Ã Â¤Âµ Ã Â¤â€ Ã Â¤â€°Ã Â¤Å¸Ã Â¤ÂªÃ Â¥ÂÃ Â¤Å¸",
-    history: "Ã Â¤Â¹Ã Â¤Â¾Ã Â¤Â² Ã Â¤â€¢Ã Â¥â‚¬ Ã Â¤Â¬Ã Â¤Â¾Ã Â¤Â¤Ã Â¤Å¡Ã Â¥â‚¬Ã Â¤Â¤",
-    noHistory: "Ã Â¤â€¦Ã Â¤Â­Ã Â¥â‚¬ Ã Â¤Â¤Ã Â¤â€¢ Ã Â¤â€¢Ã Â¥â€¹Ã Â¤Ë† Ã Â¤Â¬Ã Â¤Â¾Ã Â¤Â¤Ã Â¤Å¡Ã Â¥â‚¬Ã Â¤Â¤ Ã Â¤Â¨Ã Â¤Â¹Ã Â¥â‚¬Ã Â¤â€š Ã Â¤Â¹Ã Â¥Ë†Ã Â¥Â¤",
-    noHand: "Ã Â¤â€¢Ã Â¥Ë†Ã Â¤Â®Ã Â¤Â°Ã Â¥â€¡ Ã Â¤â€¢Ã Â¥â€¡ Ã Â¤Â«Ã Â¥ÂÃ Â¤Â°Ã Â¥â€¡Ã Â¤Â® Ã Â¤Â®Ã Â¥â€¡Ã Â¤â€š Ã Â¤ÂÃ Â¤â€¢ Ã Â¤Â¹Ã Â¤Â¾Ã Â¤Â¥ Ã Â¤Â¸Ã Â¤Â¾Ã Â¤Â«Ã Â¤Â¼ Ã Â¤Â¦Ã Â¤Â¿Ã Â¤â€“Ã Â¤Â¾Ã Â¤ÂÃ Â¤ÂÃ Â¥Â¤",
-    listening: "Ã Â¤Â¸Ã Â¥ÂÃ Â¤Â¨ Ã Â¤Â°Ã Â¤Â¹Ã Â¤Â¾ Ã Â¤Â¹Ã Â¥Ë†...",
-    ready: "Ã Â¤Â¤Ã Â¥Ë†Ã Â¤Â¯Ã Â¤Â¾Ã Â¤Â°",
-    cameraHint: "MediaPipe hand tracking Ã Â¤Â¸Ã Â¥â‚¬Ã Â¤Â§Ã Â¥â€¡ Ã Â¤Â¬Ã Â¥ÂÃ Â¤Â°Ã Â¤Â¾Ã Â¤â€°Ã Â¤Å“Ã Â¤Â¼Ã Â¤Â° Ã Â¤Â®Ã Â¥â€¡Ã Â¤â€š Ã Â¤Å¡Ã Â¤Â²Ã Â¤Â¤Ã Â¥â‚¬ Ã Â¤Â¹Ã Â¥Ë†Ã Â¥Â¤",
-    micHint: "Ã Â¤Â¸Ã Â¤Â¬Ã Â¤Â¸Ã Â¥â€¡ Ã Â¤â€¦Ã Â¤Å¡Ã Â¥ÂÃ Â¤â€ºÃ Â¤Â¾ speech recognition Chrome Ã Â¤Â¯Ã Â¤Â¾ Edge Ã Â¤Â®Ã Â¥â€¡Ã Â¤â€š Ã Â¤Â®Ã Â¤Â¿Ã Â¤Â²Ã Â¥â€¡Ã Â¤â€”Ã Â¤Â¾Ã Â¥Â¤",
-    backendConfigHint: "Ã Â¤Â¬Ã Â¥Ë†Ã Â¤â€¢Ã Â¤ÂÃ Â¤â€šÃ Â¤Â¡ Ã Â¤Â¸Ã Â¥â€¡ Ã Â¤Å“Ã Â¥ÂÃ Â¤Â¡Ã Â¤Â¼Ã Â¤Â¨Ã Â¥â€¡ Ã Â¤â€¢Ã Â¥â€¡ Ã Â¤Â²Ã Â¤Â¿Ã Â¤Â frontend deployment Ã Â¤Â®Ã Â¥â€¡Ã Â¤â€š VITE_API_URL Ã Â¤Â¸Ã Â¥â€¡Ã Â¤Å¸ Ã Â¤â€¢Ã Â¤Â°Ã Â¥â€¡Ã Â¤â€šÃ Â¥Â¤",
-    backendOfflineHint: "Ã Â¤Â«Ã Â¥ÂÃ Â¤Â°Ã Â¤â€šÃ Â¤Å¸Ã Â¤ÂÃ Â¤â€šÃ Â¤Â¡ Ã Â¤Â¬Ã Â¥Ë†Ã Â¤â€¢Ã Â¤ÂÃ Â¤â€šÃ Â¤Â¡ health endpoint Ã Â¤Â¤Ã Â¤â€¢ Ã Â¤Â¨Ã Â¤Â¹Ã Â¥â‚¬Ã Â¤â€š Ã Â¤ÂªÃ Â¤Â¹Ã Â¥ÂÃ Â¤â€šÃ Â¤Å¡ Ã Â¤Â¸Ã Â¤â€¢Ã Â¤Â¾Ã Â¥Â¤",
+      "ÃƒÂ Ã‚Â¤Ã‚ÂÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ ÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¥Ã¢â€šÂ¬ ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã¢â‚¬Â°ÃƒÂ Ã‚Â¤Ã…â€œÃƒÂ Ã‚Â¤Ã‚Â¼ÃƒÂ Ã‚Â¤Ã‚Â° ÃƒÂ Ã‚Â¤Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Âª ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ sign-to-text, sign-to-speech ÃƒÂ Ã‚Â¤Ã¢â‚¬ÂÃƒÂ Ã‚Â¤Ã‚Â° speech-to-text communication.",
+    chooseMode: "ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¹ÃƒÂ Ã‚Â¤Ã‚Â¡ ÃƒÂ Ã‚Â¤Ã…Â¡ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡",
+    signToText: "ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¥Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ -> ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¤Ã‚Â§ÃƒÂ Ã‚Â¤Ã‚Â¿ÃƒÂ Ã‚Â¤Ã‚Â°",
+    signToSpeech: "ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¥Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ -> ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ ÃƒÂ Ã‚Â¤Ã‚ÂµÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¤Ã‚Â¾",
+    speechToText: "ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ ÃƒÂ Ã‚Â¤Ã‚ÂµÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¤Ã‚Â¾ -> ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¤Ã‚Â§ÃƒÂ Ã‚Â¤Ã‚Â¿ÃƒÂ Ã‚Â¤Ã‚Â°",
+    startCamera: "ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã‚Â¨ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡",
+    stopCamera: "ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¥Ã‹â€ ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¤Ã‚Â¾ ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã‚Â¦ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡",
+    startListening: "ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¹ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡",
+    stopListening: "ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¤Ã‚Â¾ ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã‚Â¦ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡",
+    clear: "ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â«ÃƒÂ Ã‚Â¤Ã‚Â¼ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡",
+    translation: "ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¦ÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚ÂµÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â¦",
+    confidence: "ÃƒÂ Ã‚Â¤Ã‚ÂµÃƒÂ Ã‚Â¤Ã‚Â¿ÃƒÂ Ã‚Â¤Ã‚Â¶ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚ÂµÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â¸",
+    backend: "ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¥Ã‹â€ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¤Ã‚ÂÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã‚Â¡ ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã…Â¸ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã…Â¸ÃƒÂ Ã‚Â¤Ã‚Â¸",
+    online: "ÃƒÂ Ã‚Â¤Ã¢â‚¬ËœÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã‚Â¨",
+    offline: "ÃƒÂ Ã‚Â¤Ã¢â‚¬ËœÃƒÂ Ã‚Â¤Ã‚Â«ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã‚Â¨",
+    setupNeeded: "ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã…Â¸ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¦ÃƒÂ Ã‚Â¤Ã‚Âª ÃƒÂ Ã‚Â¤Ã…Â¡ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¤Ã‚Â¿ÃƒÂ Ã‚Â¤Ã‚Â",
+    heuristic: "ÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¯ÃƒÂ Ã‚Â¥Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¤Ã‚Â¿ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã…Â¸ÃƒÂ Ã‚Â¤Ã‚Â¿ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ ÃƒÂ Ã‚Â¤Ã‚Â¡ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¹ ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¥Ã¢â‚¬Â°ÃƒÂ Ã‚Â¤Ã‚Â¡ÃƒÂ Ã‚Â¤Ã‚Â²",
+    trained: "ÃƒÂ Ã‚Â¤Ã…Â¸ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¤Ã‚Â«ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¹ ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¥Ã¢â‚¬Â°ÃƒÂ Ã‚Â¤Ã‚Â¡ÃƒÂ Ã‚Â¤Ã‚Â²",
+    output: "ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã‚Âµ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â ÃƒÂ Ã‚Â¤Ã¢â‚¬Â°ÃƒÂ Ã‚Â¤Ã…Â¸ÃƒÂ Ã‚Â¤Ã‚ÂªÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã…Â¸",
+    history: "ÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â² ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¥Ã¢â€šÂ¬ ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â¤ÃƒÂ Ã‚Â¤Ã…Â¡ÃƒÂ Ã‚Â¥Ã¢â€šÂ¬ÃƒÂ Ã‚Â¤Ã‚Â¤",
+    noHistory: "ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¦ÃƒÂ Ã‚Â¤Ã‚Â­ÃƒÂ Ã‚Â¥Ã¢â€šÂ¬ ÃƒÂ Ã‚Â¤Ã‚Â¤ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¹ÃƒÂ Ã‚Â¤Ã‹â€  ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â¤ÃƒÂ Ã‚Â¤Ã…Â¡ÃƒÂ Ã‚Â¥Ã¢â€šÂ¬ÃƒÂ Ã‚Â¤Ã‚Â¤ ÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¥Ã¢â€šÂ¬ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ ÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¥Ã‹â€ ÃƒÂ Ã‚Â¥Ã‚Â¤",
+    noHand: "ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¥Ã‹â€ ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ ÃƒÂ Ã‚Â¤Ã‚Â«ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã‚Â® ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ ÃƒÂ Ã‚Â¤Ã‚ÂÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ ÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â¥ ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â«ÃƒÂ Ã‚Â¤Ã‚Â¼ ÃƒÂ Ã‚Â¤Ã‚Â¦ÃƒÂ Ã‚Â¤Ã‚Â¿ÃƒÂ Ã‚Â¤Ã¢â‚¬â€œÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚ÂÃƒÂ Ã‚Â¤Ã‚ÂÃƒÂ Ã‚Â¥Ã‚Â¤",
+    listening: "ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¨ ÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¤Ã‚Â¾ ÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¥Ã‹â€ ...",
+    ready: "ÃƒÂ Ã‚Â¤Ã‚Â¤ÃƒÂ Ã‚Â¥Ã‹â€ ÃƒÂ Ã‚Â¤Ã‚Â¯ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â°",
+    cameraHint: "MediaPipe hand tracking ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¥Ã¢â€šÂ¬ÃƒÂ Ã‚Â¤Ã‚Â§ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã¢â‚¬Â°ÃƒÂ Ã‚Â¤Ã…â€œÃƒÂ Ã‚Â¤Ã‚Â¼ÃƒÂ Ã‚Â¤Ã‚Â° ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ ÃƒÂ Ã‚Â¤Ã…Â¡ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¤Ã‚Â¤ÃƒÂ Ã‚Â¥Ã¢â€šÂ¬ ÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¥Ã‹â€ ÃƒÂ Ã‚Â¥Ã‚Â¤",
+    micHint: "ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¦ÃƒÂ Ã‚Â¤Ã…Â¡ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã¢â‚¬ÂºÃƒÂ Ã‚Â¤Ã‚Â¾ speech recognition Chrome ÃƒÂ Ã‚Â¤Ã‚Â¯ÃƒÂ Ã‚Â¤Ã‚Â¾ Edge ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¤Ã‚Â¿ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬â€ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¥Ã‚Â¤",
+    backendConfigHint: "ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¥Ã‹â€ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¤Ã‚ÂÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã‚Â¡ ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ ÃƒÂ Ã‚Â¤Ã…â€œÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¡ÃƒÂ Ã‚Â¤Ã‚Â¼ÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¤Ã‚Â¿ÃƒÂ Ã‚Â¤Ã‚Â frontend deployment ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ VITE_API_URL ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã…Â¸ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¥Ã¢â‚¬Â¡ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¥Ã‚Â¤",
+    backendOfflineHint: "ÃƒÂ Ã‚Â¤Ã‚Â«ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã…Â¸ÃƒÂ Ã‚Â¤Ã‚ÂÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã‚Â¡ ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¥Ã‹â€ ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¤Ã‚ÂÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã‚Â¡ health endpoint ÃƒÂ Ã‚Â¤Ã‚Â¤ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ ÃƒÂ Ã‚Â¤Ã‚Â¨ÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¥Ã¢â€šÂ¬ÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ ÃƒÂ Ã‚Â¤Ã‚ÂªÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã¢â‚¬Å¡ÃƒÂ Ã‚Â¤Ã…Â¡ ÃƒÂ Ã‚Â¤Ã‚Â¸ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¥Ã‚Â¤",
   },
 };
 
@@ -139,6 +139,177 @@ function flattenLatestLandmarks(frames = []) {
   }
 
   return landmarks.flatMap((point) => [point.x, point.y, point.z]);
+}
+
+function distance2D(left, right) {
+  return Math.hypot(left.x - right.x, left.y - right.y);
+}
+
+function averagePoint(points) {
+  const total = points.reduce(
+    (accumulator, point) => ({
+      x: accumulator.x + point.x,
+      y: accumulator.y + point.y,
+      z: accumulator.z + point.z,
+    }),
+    { x: 0, y: 0, z: 0 },
+  );
+
+  return {
+    x: total.x / points.length,
+    y: total.y / points.length,
+    z: total.z / points.length,
+  };
+}
+
+function isFingerExtended(hand, tipIndex, pipIndex, mcpIndex) {
+  const tip = hand.landmarks[tipIndex];
+  const pip = hand.landmarks[pipIndex];
+  const mcp = hand.landmarks[mcpIndex];
+  return tip.y < pip.y && pip.y < mcp.y && mcp.y - tip.y > 0.09;
+}
+
+function isFingerCurled(hand, tipIndex, pipIndex) {
+  const tip = hand.landmarks[tipIndex];
+  const pip = hand.landmarks[pipIndex];
+  return tip.y >= pip.y - 0.01;
+}
+
+function isThumbRaised(hand) {
+  const wrist = hand.landmarks[0];
+  const thumbCmc = hand.landmarks[1];
+  const thumbMcp = hand.landmarks[2];
+  const thumbIp = hand.landmarks[3];
+  const thumbTip = hand.landmarks[4];
+  const indexMcp = hand.landmarks[5];
+
+  return (
+    thumbTip.y < thumbIp.y &&
+    thumbIp.y < thumbMcp.y &&
+    thumbMcp.y < thumbCmc.y &&
+    wrist.y - thumbTip.y > 0.12 &&
+    distance2D(thumbTip, indexMcp) > distance2D(thumbMcp, indexMcp) + 0.03
+  );
+}
+
+function isThumbSideways(hand) {
+  const thumbTip = hand.landmarks[4];
+  const thumbMcp = hand.landmarks[2];
+  const deltaX = Math.abs(thumbTip.x - thumbMcp.x);
+  const deltaY = Math.abs(thumbTip.y - thumbMcp.y);
+
+  return deltaX > 0.12 && deltaX > deltaY * 1.25;
+}
+
+function isThumbAcrossPalm(hand) {
+  const thumbTip = hand.landmarks[4];
+  const palmCenter = averagePoint([
+    hand.landmarks[0],
+    hand.landmarks[5],
+    hand.landmarks[9],
+    hand.landmarks[13],
+    hand.landmarks[17],
+  ]);
+
+  return distance2D(thumbTip, palmCenter) < 0.18 && thumbTip.y > hand.landmarks[5].y - 0.03;
+}
+
+function isOpenPalm(hand) {
+  return (
+    isFingerExtended(hand, 8, 6, 5) &&
+    isFingerExtended(hand, 12, 10, 9) &&
+    isFingerExtended(hand, 16, 14, 13) &&
+    isFingerExtended(hand, 20, 18, 17)
+  );
+}
+
+function detectStaticDemoGesture(hand) {
+  const indexExtended = isFingerExtended(hand, 8, 6, 5);
+  const middleExtended = isFingerExtended(hand, 12, 10, 9);
+  const ringExtended = isFingerExtended(hand, 16, 14, 13);
+  const pinkyExtended = isFingerExtended(hand, 20, 18, 17);
+  const indexCurled = isFingerCurled(hand, 8, 6);
+  const middleCurled = isFingerCurled(hand, 12, 10);
+  const ringCurled = isFingerCurled(hand, 16, 14);
+  const pinkyCurled = isFingerCurled(hand, 20, 18);
+
+  if (isThumbRaised(hand) && indexCurled && middleCurled && ringCurled && pinkyCurled) {
+    return { label: "YES", confidence: 0.99, mode: "demo_thumbs_up" };
+  }
+
+  if (indexExtended && middleCurled && ringCurled && pinkyCurled) {
+    const indexTip = hand.landmarks[8];
+    const indexMcp = hand.landmarks[5];
+    if (indexTip.z < indexMcp.z - 0.12) {
+      return { label: "YOU", confidence: 0.98, mode: "demo_point" };
+    }
+  }
+
+  if (indexExtended && middleCurled && ringCurled && pinkyCurled && isThumbSideways(hand)) {
+    return { label: "L", confidence: 0.99, mode: "demo_l" };
+  }
+
+  if (
+    indexExtended &&
+    middleExtended &&
+    ringExtended &&
+    pinkyExtended &&
+    isThumbAcrossPalm(hand)
+  ) {
+    return { label: "B", confidence: 0.99, mode: "demo_b" };
+  }
+
+  return null;
+}
+
+function detectWaveGesture(frames = []) {
+  const recentFrames = frames.slice(-8);
+  if (recentFrames.length < 6) {
+    return null;
+  }
+
+  const currentHand = recentFrames[recentFrames.length - 1]?.hands?.[0];
+  if (!currentHand || !isOpenPalm(currentHand)) {
+    return null;
+  }
+
+  const wristXs = recentFrames
+    .map((frame) => frame?.hands?.[0]?.landmarks?.[0]?.x)
+    .filter((value) => Number.isFinite(value));
+
+  if (wristXs.length < 6) {
+    return null;
+  }
+
+  const horizontalRange = Math.max(...wristXs) - Math.min(...wristXs);
+  let directionChanges = 0;
+  let previousDirection = 0;
+
+  for (let index = 1; index < wristXs.length; index += 1) {
+    const delta = wristXs[index] - wristXs[index - 1];
+    const direction = Math.abs(delta) < 0.008 ? 0 : Math.sign(delta);
+    if (direction && previousDirection && direction !== previousDirection) {
+      directionChanges += 1;
+    }
+    if (direction) {
+      previousDirection = direction;
+    }
+  }
+
+  if (horizontalRange > 0.12 && directionChanges >= 1) {
+    return { label: "HELLO", confidence: 0.98, mode: "demo_wave" };
+  }
+
+  return null;
+}
+
+function detectDemoGesture(frames = []) {
+  const latestHand = frames[frames.length - 1]?.hands?.[0];
+  if (!latestHand) {
+    return null;
+  }
+
+  return detectWaveGesture(frames) || detectStaticDemoGesture(latestHand);
 }
 
 function useSpeechRecognition(language, onTranscript) {
@@ -587,10 +758,7 @@ function App() {
         stablePrediction !== "Gesture not recognised" &&
         stablePrediction !== lastPhraseRef.current
       ) {
-        lastPhraseRef.current = stablePrediction;
-        setTranslation(stablePrediction);
-        setConfidence(confidenceScore);
-        persistConversation(data.mode || "sign_prediction", stablePrediction, confidenceScore);
+        applyPrediction(stablePrediction, confidenceScore, data.mode || "sign_prediction");
       } else if (stablePrediction) {
         setConfidence(confidenceScore);
       }
@@ -616,8 +784,22 @@ function App() {
     setHistory((current) => [item, ...current].slice(0, 8));
   }
 
+  function applyPrediction(label, score, entryMode) {
+    if (!label || label === "Gesture not recognised") {
+      return;
+    }
+
+    setTranslation(label);
+    setConfidence(score);
+
+    if (label !== lastPhraseRef.current) {
+      lastPhraseRef.current = label;
+      persistConversation(entryMode, label, score);
+    }
+  }
+
   const showCamera = mode !== MODES.speechToText;
-  const targetHeading = language === "hi" ? "Ã Â¤ÂªÃ Â¤Â¹Ã Â¤Å¡Ã Â¤Â¾Ã Â¤Â¨ Ã Â¤Â²Ã Â¤â€¢Ã Â¥ÂÃ Â¤Â·Ã Â¥ÂÃ Â¤Â¯" : "Recognition target";
+  const targetHeading = language === "hi" ? "ÃƒÂ Ã‚Â¤Ã‚ÂªÃƒÂ Ã‚Â¤Ã‚Â¹ÃƒÂ Ã‚Â¤Ã…Â¡ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â¨ ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â·ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¯" : "Recognition target";
   const backendBadgeLabel = !backendHealth.configured
     ? t.setupNeeded
     : backendHealth.ok
@@ -626,12 +808,12 @@ function App() {
   const targetCards = [
     {
       id: "general",
-      label: language === "hi" ? "Ã Â¤Â¶Ã Â¤Â¬Ã Â¥ÂÃ Â¤Â¦ / Ã Â¤ÂµÃ Â¤Â¾Ã Â¤â€¢Ã Â¥ÂÃ Â¤Â¯" : "Words / Phrases",
+      label: language === "hi" ? "ÃƒÂ Ã‚Â¤Ã‚Â¶ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¦ / ÃƒÂ Ã‚Â¤Ã‚ÂµÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¯" : "Words / Phrases",
       disabled: false,
     },
     {
       id: "alphabet",
-      label: language === "hi" ? "Ã Â¤ÂµÃ Â¤Â°Ã Â¥ÂÃ Â¤Â£Ã Â¤Â®Ã Â¤Â¾Ã Â¤Â²Ã Â¤Â¾" : "Alphabet",
+      label: language === "hi" ? "ÃƒÂ Ã‚Â¤Ã‚ÂµÃƒÂ Ã‚Â¤Ã‚Â°ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â£ÃƒÂ Ã‚Â¤Ã‚Â®ÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã‚Â²ÃƒÂ Ã‚Â¤Ã‚Â¾" : "Alphabet",
       disabled:
         backendHealth.checked &&
         backendHealth.ok &&
@@ -872,3 +1054,4 @@ function App() {
 }
 
 export default App;
+
