@@ -1,5 +1,6 @@
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { BACKEND_URL, BACKEND_URL_CANDIDATES, HAS_BACKEND_URL } from '../config';
+import { WEB_FONT_FAMILY } from '../design';
 import { WEB_MODE_A_HTML } from '../webModeAHtml';
 
 const frameStyle = {
@@ -7,7 +8,8 @@ const frameStyle = {
   width: '100%',
   height: '100%',
   border: '0',
-  backgroundColor: '#07070F',
+  backgroundColor: '#EFF6F8',
+  borderRadius: '28px',
 };
 
 export default function ModeAWebScreen() {
@@ -23,10 +25,9 @@ export default function ModeAWebScreen() {
     <View style={styles.root}>
       {!HAS_BACKEND_URL && (
         <View style={styles.banner}>
-          <Text style={styles.bannerTitle}>Render backend URL missing</Text>
+          <Text style={styles.bannerTitle}>Backend URL missing</Text>
           <Text style={styles.bannerText}>
-            Set the Vercel environment variable EXPO_PUBLIC_BACKEND_URL to your Render backend URL,
-            then redeploy the frontend.
+            Set `EXPO_PUBLIC_BACKEND_URL` in Vercel so the live sign page can talk to Render.
           </Text>
         </View>
       )}
@@ -47,29 +48,33 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     minHeight: 0,
-    backgroundColor: '#07070F',
+    gap: 14,
   },
   banner: {
-    backgroundColor: '#1A0A12',
-    borderBottomColor: '#F72585',
-    borderBottomWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: '#FFF0E6',
+    borderColor: '#F97316',
+    borderWidth: 1,
+    borderRadius: 22,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
   },
   bannerTitle: {
-    color: '#F72585',
+    color: '#C96318',
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 4,
+    fontFamily: WEB_FONT_FAMILY,
   },
   bannerText: {
-    color: '#F6D6E3',
+    color: '#7B4D2A',
     fontSize: 12,
     lineHeight: 18,
+    fontFamily: WEB_FONT_FAMILY,
   },
   frameWrap: {
     flex: 1,
     minHeight: 0,
     overflow: 'hidden',
+    borderRadius: 28,
   },
 });

@@ -4,31 +4,38 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ISL Bridge - Live Detection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #07070f;
-    --surface: #0f0f1e;
-    --surface-alt: #080818;
-    --border: #1a1a3a;
-    --text: #f5f7ff;
-    --muted: #7b7fa8;
-    --accent: #00f5d4;
-    --accent-bg: rgba(0, 245, 212, 0.14);
-    --danger: #f72585;
-    --warning: #ffd166;
+    --bg: #eff6f8;
+    --surface: rgba(255, 255, 255, 0.92);
+    --surface-alt: #f6fbfc;
+    --border: #d8e2e8;
+    --text: #08121c;
+    --muted: #607181;
+    --accent: #0ea5a7;
+    --accent-strong: #08121c;
+    --accent-bg: rgba(14, 165, 167, 0.12);
+    --danger: #f97316;
+    --warning: #f59e0b;
+    --shadow: 0 20px 60px rgba(8, 18, 28, 0.12);
   }
 
   body.light {
-    --bg: #f3f6fb;
-    --surface: #ffffff;
-    --surface-alt: #eef3fb;
-    --border: #d7e0ef;
-    --text: #111827;
-    --muted: #5f6b85;
-    --accent: #0a8f7d;
-    --accent-bg: rgba(10, 143, 125, 0.12);
-    --danger: #cc3366;
-    --warning: #c98b00;
+    --bg: #eff6f8;
+    --surface: rgba(255, 255, 255, 0.92);
+    --surface-alt: #f6fbfc;
+    --border: #d8e2e8;
+    --text: #08121c;
+    --muted: #607181;
+    --accent: #0ea5a7;
+    --accent-strong: #08121c;
+    --accent-bg: rgba(14, 165, 167, 0.12);
+    --danger: #f97316;
+    --warning: #f59e0b;
+    --shadow: 0 20px 60px rgba(8, 18, 28, 0.12);
   }
 
   * { box-sizing: border-box; }
@@ -36,8 +43,12 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: Arial, sans-serif;
+    font-family: Manrope, Arial, sans-serif;
     transition: background 0.2s ease, color 0.2s ease;
+    background-image:
+      radial-gradient(circle at top left, rgba(14, 165, 167, 0.16), transparent 24%),
+      radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 20%),
+      linear-gradient(180deg, #f6fbfc, #edf5f6);
   }
 
   .topbar {
@@ -45,9 +56,12 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
+    padding: 18px 22px;
+    border: 1px solid var(--border);
+    border-radius: 32px;
     background: var(--surface);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
   }
 
   .logo {
@@ -57,9 +71,9 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
   }
 
   .logo-mark {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
     background: var(--accent-bg);
     border: 1px solid var(--border);
     display: grid;
@@ -70,7 +84,8 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
 
   .logo-copy strong {
     display: block;
-    font-size: 15px;
+    font-size: 18px;
+    font-family: Poppins, Manrope, sans-serif;
   }
 
   .logo-copy span {
@@ -100,8 +115,8 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
   }
 
   .btn-small {
-    border-radius: 10px;
-    padding: 9px 12px;
+    border-radius: 999px;
+    padding: 10px 14px;
     font-size: 12px;
     font-weight: 700;
   }
@@ -114,8 +129,8 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
   .main {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 360px;
-    gap: 16px;
-    padding: 16px;
+    gap: 18px;
+    padding: 18px 0 0;
     max-width: 1160px;
     margin: 0 auto;
   }
@@ -131,13 +146,16 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 30px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
   }
 
   .camera-wrap {
     position: relative;
     overflow: hidden;
     min-height: 420px;
+    padding: 0;
   }
 
   #video,
@@ -162,7 +180,7 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
     width: fit-content;
     padding: 6px 12px;
     border-radius: 999px;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(8, 18, 28, 0.76);
     color: var(--accent);
     font-size: 12px;
     font-weight: 700;
@@ -175,7 +193,7 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
     bottom: 14px;
     padding: 14px;
     border-radius: 14px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.55));
+    background: linear-gradient(180deg, rgba(8, 18, 28, 0.04), rgba(8, 18, 28, 0.72));
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
@@ -186,6 +204,7 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
     font-size: 46px;
     font-weight: 800;
     line-height: 1;
+    font-family: Poppins, Manrope, sans-serif;
   }
 
   .conf-badge {
@@ -208,8 +227,8 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
     flex: 1;
     border: 1px solid var(--accent);
     background: var(--accent);
-    color: #051110;
-    border-radius: 12px;
+    color: white;
+    border-radius: 999px;
     padding: 14px 16px;
     font-size: 14px;
     font-weight: 800;
@@ -221,14 +240,14 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
   }
 
   .btn-clear {
-    border-radius: 12px;
+    border-radius: 999px;
     padding: 14px 18px;
     font-size: 13px;
     font-weight: 700;
   }
 
   .card {
-    padding: 16px;
+    padding: 18px;
   }
 
   .card-label {
@@ -267,7 +286,7 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
 
   .lang-btn {
     flex: 1;
-    border-radius: 10px;
+    border-radius: 999px;
     border: 1px solid var(--border);
     background: var(--surface-alt);
     color: var(--muted);
@@ -286,6 +305,7 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
     font-size: 48px;
     font-weight: 800;
     line-height: 1.05;
+    font-family: Poppins, Manrope, sans-serif;
   }
 
   .output-sub {
@@ -348,7 +368,7 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
     gap: 12px;
     background: var(--surface-alt);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 20px;
     padding: 10px 12px;
   }
 
@@ -371,7 +391,7 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
 
   .mode-tab {
     width: 100%;
-    border-radius: 12px;
+    border-radius: 999px;
     padding: 14px;
     font-size: 13px;
     font-weight: 700;
@@ -385,7 +405,7 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
 
   .demo-btn {
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 999px;
     background: var(--surface-alt);
     color: var(--text);
     padding: 10px 12px;
@@ -408,7 +428,7 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
 
   .notice {
     margin-top: 10px;
-    border-radius: 12px;
+    border-radius: 20px;
     border: 1px solid var(--border);
     background: var(--surface-alt);
     color: var(--muted);
@@ -428,17 +448,17 @@ export const WEB_MODE_A_HTML = String.raw`<!DOCTYPE html>
   }
 </style>
 </head>
-<body class="dark">
+<body class="light">
 <div class="topbar">
   <div class="logo">
     <div class="logo-mark">AI</div>
     <div class="logo-copy">
       <strong>ISL Bridge</strong>
-      <span>Live sign recognition</span>
+      <span>Live sign recognition for demos and judge flow</span>
     </div>
   </div>
   <div class="topbar-btns">
-    <button class="btn-small" onclick="toggleTheme()" id="themeBtn">Light Theme</button>
+    <button class="btn-small" onclick="toggleTheme()" id="themeBtn">Dark Theme</button>
     <button class="btn-small accent" onclick="toggleMode()">Switch to Speech Mode</button>
   </div>
 </div>
@@ -597,7 +617,7 @@ const COPY = {
 
 let detecting = false;
 let currentLang = 'en';
-let isDark = true;
+let isDark = false;
 let lastSend = 0;
 let history = [];
 let hands = null;

@@ -1,14 +1,15 @@
-import { useState, useContext } from 'react';
+import { useContext, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
+  Platform,
   SafeAreaView,
   ScrollView,
-  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { AppContext } from '../AppContext';
+import { WEB_DISPLAY_FONT, WEB_FONT_FAMILY } from '../design';
 
 const LANG = {
   en: {
@@ -97,10 +98,15 @@ export default function OnboardingScreen({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: theme.bg }]}>
+      <View style={[styles.orbA, { backgroundColor: theme.accentA + '18' }]} />
+      <View style={[styles.orbB, { backgroundColor: theme.accentB + '16' }]} />
+
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={[styles.team, { color: theme.accentA }]}>{t.team}</Text>
-        <Text style={[styles.welcome, { color: theme.text }]}>{t.welcome}</Text>
-        <Text style={[styles.subtitle, { color: theme.subtext }]}>{t.subtitle}</Text>
+        <View style={[styles.heroCard, { backgroundColor: theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}>
+          <Text style={[styles.team, { color: theme.accentA }]}>{t.team}</Text>
+          <Text style={[styles.welcome, { color: theme.text }]}>{t.welcome}</Text>
+          <Text style={[styles.subtitle, { color: theme.subtext }]}>{t.subtitle}</Text>
+        </View>
 
         {modes.map((mode) => {
           const selected = selectedMode === mode.id;
@@ -148,31 +154,64 @@ export default function OnboardingScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
+  orbA: {
+    position: 'absolute',
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    top: -80,
+    right: -90,
+  },
+  orbB: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    bottom: 100,
+    left: -80,
+  },
   scroll: { padding: 20, paddingBottom: 40 },
+  heroCard: {
+    borderRadius: 30,
+    padding: 24,
+    marginBottom: 18,
+    borderWidth: 1,
+    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.12,
+    shadowRadius: 34,
+    elevation: 8,
+  },
   team: {
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '700',
     letterSpacing: 2,
     marginTop: 8,
     marginBottom: 12,
+    fontFamily: WEB_FONT_FAMILY,
   },
   welcome: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontWeight: '800',
     marginBottom: 8,
+    fontFamily: WEB_DISPLAY_FONT,
   },
   subtitle: {
     fontSize: 14,
     lineHeight: 22,
-    marginBottom: 24,
+    fontFamily: WEB_FONT_FAMILY,
   },
   modeCard: {
-    borderRadius: 16,
-    padding: 18,
+    borderRadius: 26,
+    padding: 20,
     marginBottom: 14,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
+    shadowColor: '#08121C',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
+    shadowRadius: 24,
+    elevation: 6,
   },
   badge: {
     width: 58,
@@ -184,29 +223,38 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    fontFamily: WEB_DISPLAY_FONT,
   },
   modeContent: {
     flex: 1,
   },
   modeTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 6,
+    fontFamily: WEB_DISPLAY_FONT,
   },
   modeDesc: {
     fontSize: 13,
     lineHeight: 20,
+    fontFamily: WEB_FONT_FAMILY,
   },
   continueBtn: {
-    borderRadius: 12,
+    borderRadius: 999,
     padding: 16,
     alignItems: 'center',
     marginTop: 8,
     borderWidth: 1.5,
+    shadowColor: '#08121C',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.12,
+    shadowRadius: 26,
+    elevation: 8,
   },
   continueBtnText: {
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    fontFamily: WEB_FONT_FAMILY,
   },
 });

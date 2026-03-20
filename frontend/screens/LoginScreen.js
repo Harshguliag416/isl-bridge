@@ -1,6 +1,7 @@
-﻿import { useContext, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { useContext, useState } from 'react';
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppContext } from '../AppContext';
+import { WEB_DISPLAY_FONT, WEB_FONT_FAMILY } from '../design';
 
 const COPY = {
   en: {
@@ -39,11 +40,16 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={[styles.root, { backgroundColor: theme.bg }]}> 
+    <SafeAreaView style={[styles.root, { backgroundColor: theme.bg }]}>
+      <View style={[styles.orbA, { backgroundColor: theme.accentA + '20' }]} />
+      <View style={[styles.orbB, { backgroundColor: theme.accentC + '18' }]} />
+
       <View style={styles.content}>
-        <Text style={[styles.eyebrow, { color: theme.accentA }]}>{t.eyebrow}</Text>
-        <Text style={[styles.title, { color: theme.text }]}>{t.title}</Text>
-        <Text style={[styles.subtitle, { color: theme.subtext }]}>{t.subtitle}</Text>
+        <View style={[styles.heroCard, { backgroundColor: theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}>
+          <Text style={[styles.eyebrow, { color: theme.accentA }]}>{t.eyebrow}</Text>
+          <Text style={[styles.title, { color: theme.text }]}>{t.title}</Text>
+          <Text style={[styles.subtitle, { color: theme.subtext }]}>{t.subtitle}</Text>
+        </View>
 
         <View style={styles.options}>
           {LANGUAGE_OPTIONS.map((option) => {
@@ -89,55 +95,96 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
+  orbA: {
+    position: 'absolute',
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    top: -40,
+    left: -70,
+  },
+  orbB: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    bottom: 60,
+    right: -80,
+  },
   content: {
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
+  heroCard: {
+    borderWidth: 1,
+    borderRadius: 28,
+    padding: 24,
+    marginBottom: 24,
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.12,
+    shadowRadius: 36,
+    elevation: 10,
+  },
   eyebrow: {
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '700',
     letterSpacing: 2,
     marginBottom: 12,
-    textAlign: 'center',
+    textAlign: 'left',
+    fontFamily: WEB_FONT_FAMILY,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 30,
+    fontWeight: '800',
+    textAlign: 'left',
     marginBottom: 10,
+    fontFamily: WEB_DISPLAY_FONT,
   },
   subtitle: {
     fontSize: 15,
     lineHeight: 22,
-    textAlign: 'center',
-    marginBottom: 28,
+    textAlign: 'left',
+    fontFamily: WEB_FONT_FAMILY,
   },
   options: {
     gap: 14,
   },
   optionCard: {
-    borderRadius: 16,
-    padding: 18,
+    borderRadius: 24,
+    padding: 20,
+    shadowColor: '#08121C',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
+    shadowRadius: 24,
+    elevation: 6,
   },
   optionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 6,
+    fontFamily: WEB_DISPLAY_FONT,
   },
   optionSubtitle: {
     fontSize: 13,
     lineHeight: 20,
+    fontFamily: WEB_FONT_FAMILY,
   },
   button: {
     margin: 24,
-    borderRadius: 12,
+    borderRadius: 999,
     padding: 18,
     alignItems: 'center',
     borderWidth: 1.5,
+    shadowColor: '#08121C',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.12,
+    shadowRadius: 26,
+    elevation: 8,
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    fontFamily: WEB_FONT_FAMILY,
   },
 });

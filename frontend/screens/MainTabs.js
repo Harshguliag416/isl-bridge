@@ -1,7 +1,8 @@
+import { useContext, useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../AppContext';
+import { WEB_DISPLAY_FONT, WEB_FONT_FAMILY } from '../design';
 import ModeAScreen from './ModeAScreen';
 import ModeAWebScreen from './ModeAWebScreen';
 import ModeBScreen from './ModeBScreen';
@@ -36,42 +37,44 @@ function WebModeSwitcher({ initialTab }) {
 
   return (
     <View style={[styles.webRoot, { backgroundColor: theme.bg }]}>
-      <View style={[styles.webSwitcher, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
-        <TouchableOpacity
-          style={[
-            styles.webSwitcherButton,
-            {
-              backgroundColor: activeTab === 'ModeA' ? `${theme.accentA}20` : theme.bg,
-              borderColor: activeTab === 'ModeA' ? theme.accentA : theme.border,
-            },
-          ]}
-          onPress={() => setActiveTab('ModeA')}>
-          <Text
-            style={[
-              styles.webSwitcherButtonText,
-              { color: activeTab === 'ModeA' ? theme.accentA : theme.subtext },
-            ]}>
-            Sign to Speech
+      <View style={[styles.webHero, { backgroundColor: theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}>
+        <View style={styles.webHeroCopy}>
+          <Text style={[styles.webEyebrow, { color: theme.accentA }]}>Real-Time Sign Language Translator</Text>
+          <Text style={[styles.webTitle, { color: theme.text }]}>ISL Bridge</Text>
+          <Text style={[styles.webSubtitle, { color: theme.subtext }]}>
+            One browser app for sign-to-text, sign-to-speech, and speech-to-text communication.
           </Text>
-        </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity
-          style={[
-            styles.webSwitcherButton,
-            {
-              backgroundColor: activeTab === 'ModeB' ? `${theme.accentB}20` : theme.bg,
-              borderColor: activeTab === 'ModeB' ? theme.accentB : theme.border,
-            },
-          ]}
-          onPress={() => setActiveTab('ModeB')}>
-          <Text
-            style={[
-              styles.webSwitcherButtonText,
-              { color: activeTab === 'ModeB' ? theme.accentB : theme.subtext },
-            ]}>
-            Speech to Text
-          </Text>
-        </TouchableOpacity>
+        <View style={[styles.webModeRail, { backgroundColor: theme.bg, borderColor: theme.border }]}>
+          {[
+            { id: 'ModeA', title: 'Mute -> Hearing', accent: theme.accentA },
+            { id: 'ModeB', title: 'Hearing -> Deaf', accent: theme.accentB },
+          ].map((item) => {
+            const selected = activeTab === item.id;
+            return (
+              <TouchableOpacity
+                key={item.id}
+                style={[
+                  styles.webSwitcherButton,
+                  {
+                    backgroundColor: selected ? theme.text : theme.card,
+                    borderColor: selected ? theme.text : theme.border,
+                  },
+                ]}
+                onPress={() => setActiveTab(item.id)}>
+                <View style={[styles.modeBar, { backgroundColor: item.accent }]} />
+                <Text
+                  style={[
+                    styles.webSwitcherButtonText,
+                    { color: selected ? theme.card : theme.text },
+                  ]}>
+                  {item.title}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
 
       <View style={styles.webContent}>
@@ -96,20 +99,21 @@ export default function MainTabs({ route }) {
       screenOptions={({ route: currentRoute }) => ({
         headerShown: false,
         tabBarIcon: ({ focused, color }) => (
-          <Text style={{ fontSize: focused ? 28 : 24, color, marginTop: 5 }}>{ICONS[currentRoute.name]}</Text>
+          <Text style={{ fontSize: focused ? 26 : 22, color, marginTop: 6, fontFamily: WEB_DISPLAY_FONT }}>{ICONS[currentRoute.name]}</Text>
         ),
         tabBarStyle: {
           backgroundColor: theme.tabBar,
           borderTopColor: theme.border,
-          height: 65,
+          height: 72,
           paddingBottom: 8,
-          paddingTop: 5,
+          paddingTop: 8,
         },
         tabBarActiveTintColor: theme.tabActive,
         tabBarInactiveTintColor: theme.tabInactive,
         tabBarLabelStyle: {
-          fontWeight: 'bold',
+          fontWeight: '700',
           fontSize: 11,
+          fontFamily: WEB_FONT_FAMILY,
         },
       })}>
       <Tab.Screen name="ModeA" component={ModeAComponent} options={{ title: 'Sign to Speech' }} />
@@ -121,25 +125,63 @@ export default function MainTabs({ route }) {
 const styles = StyleSheet.create({
   webRoot: {
     flex: 1,
+    padding: 18,
+    gap: 18,
   },
-  webSwitcher: {
+  webHero: {
+    borderWidth: 1,
+    borderRadius: 32,
+    padding: 22,
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.12,
+    shadowRadius: 36,
+    elevation: 10,
+    gap: 18,
+  },
+  webHeroCopy: {
+    gap: 8,
+  },
+  webEyebrow: {
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1.4,
+    fontFamily: WEB_FONT_FAMILY,
+  },
+  webTitle: {
+    fontSize: 40,
+    fontWeight: '800',
+    fontFamily: WEB_DISPLAY_FONT,
+  },
+  webSubtitle: {
+    fontSize: 15,
+    lineHeight: 24,
+    maxWidth: 680,
+    fontFamily: WEB_FONT_FAMILY,
+  },
+  webModeRail: {
     flexDirection: 'row',
     gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
+    padding: 10,
+    borderRadius: 28,
+    borderWidth: 1,
   },
   webSwitcherButton: {
     flex: 1,
-    alignItems: 'center',
     borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    gap: 12,
+  },
+  modeBar: {
+    width: '100%',
+    height: 8,
+    borderRadius: 999,
   },
   webSwitcherButtonText: {
-    fontSize: 13,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '700',
+    fontFamily: WEB_FONT_FAMILY,
   },
   webContent: {
     flex: 1,
