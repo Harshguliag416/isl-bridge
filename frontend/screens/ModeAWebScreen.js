@@ -1,10 +1,26 @@
-﻿import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { BACKEND_URL, HAS_BACKEND_URL } from '../config';
 import { WEB_MODE_A_HTML } from '../webModeAHtml';
 
 export default function ModeAWebScreen() {
-  const srcDoc = useMemo(() => WEB_MODE_A_HTML.replace('__BACKEND_URL__', BACKEND_URL || ''), []);
+  const [frameSrc, setFrameSrc] = useState('');
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') {
+      return undefined;
+    }
+
+    const html = WEB_MODE_A_HTML.replace('__BACKEND_URL__', BACKEND_URL || '');
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+
+    setFrameSrc(blobUrl);
+
+    return () => {
+      URL.revokeObjectURL(blobUrl);
+    };
+  }, []);
 
   if (Platform.OS !== 'web') {
     return null;
@@ -23,7 +39,7 @@ export default function ModeAWebScreen() {
       )}
       <iframe
         title="ISL Bridge Mode A"
-        srcDoc={srcDoc}
+        src={frameSrc}
         style={styles.frame}
         allow="camera; microphone; autoplay"
       />
@@ -56,6 +72,7 @@ const styles = StyleSheet.create({
   },
   frame: {
     flex: 1,
+    display: 'block',
     width: '100%',
     height: '100%',
     borderWidth: 0,
