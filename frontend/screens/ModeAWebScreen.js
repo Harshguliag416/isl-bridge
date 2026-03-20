@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppContext } from '../AppContext';
 import { BACKEND_URL, HAS_BACKEND_URL } from '../config';
@@ -32,122 +32,119 @@ const SIGN_TO_HINDI = {
   WATER: 'WATER',
 };
 
-const LANG = {
+const HAND_SOURCES = [
+  'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js',
+  'https://unpkg.com/@mediapipe/hands/hands.js',
+];
+const DRAWING_SOURCES = [
+  'https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js',
+  'https://unpkg.com/@mediapipe/drawing_utils/drawing_utils.js',
+];
+
+const TEXT = {
   en: {
     title: 'Mute -> Hearing',
-    subtitle: 'Use the camera preview for live framing and use the demo controls for a reliable working showcase in the browser.',
-    cameraReady: 'Camera active',
-    cameraWaiting: 'Camera waiting',
-    cameraBlocked: 'Camera blocked',
-    backendReady: 'AI backend ready',
-    backendOffline: 'AI backend offline',
-    backendMissing: 'Backend URL missing',
+    subtitle: 'Camera plus MediaPipe hand tracking for live landmark prediction.',
     startCamera: 'Start Camera',
     stopCamera: 'Stop Camera',
     startSigning: 'Start Signing',
     stopSigning: 'Stop Signing',
     clear: 'Clear',
-    demoTitle: 'Demo Showcase',
-    demoHint: 'Use these buttons for the judge demo. They are stable and do not depend on live landmark tracking.',
+    backendMissing: 'Backend URL missing.',
+    backendOffline: 'Backend offline.',
+    backendReady: 'Backend ready.',
+    trackingLoading: 'Loading hand tracking libraries...',
+    trackingReady: 'Hand tracking ready.',
+    trackingMissing: 'Show one clear hand.',
+    trackingError: 'Hand tracking failed.',
+    cameraBlocked: 'Camera blocked.',
     outputLabel: 'Detected Sign',
     outputPlaceholder: 'Result will appear here.',
     confidence: 'Confidence',
-    demoWord: 'Demo word',
-    browserNote: 'Web mode is currently running in simplified browser mode for reliability.',
-    liveReady: 'Browser preview is live. Use the demo buttons for reliable judge-ready recognition.',
-    liveOffline: 'Camera preview is live, but the backend health check is offline right now.',
-    liveMissing: 'Camera preview is live, but the backend URL is not configured for this deployment.',
+    demoTitle: 'Demo Showcase',
+    historyTitle: 'Recent Detections',
+    historyEmpty: 'No signs detected yet.',
   },
   hi: {
     title: 'Mute -> Hearing',
-    subtitle: 'Camera preview se framing karein aur browser mein reliable demo ke liye demo controls use karein.',
-    cameraReady: 'Camera chalu hai',
-    cameraWaiting: 'Camera wait par hai',
-    cameraBlocked: 'Camera blocked hai',
-    backendReady: 'AI backend tayyar hai',
-    backendOffline: 'AI backend offline hai',
-    backendMissing: 'Backend URL missing hai',
+    subtitle: 'Live landmark prediction ke liye camera aur MediaPipe hand tracking.',
     startCamera: 'Camera Chalu Karein',
     stopCamera: 'Camera Band Karein',
     startSigning: 'Signing Chalu Karein',
     stopSigning: 'Signing Rokein',
     clear: 'Saaf Karein',
-    demoTitle: 'Demo Showcase',
-    demoHint: 'Judge demo ke liye in buttons ko use karein. Yeh live landmark tracking par depend nahi karte.',
+    backendMissing: 'Backend URL missing hai.',
+    backendOffline: 'Backend offline hai.',
+    backendReady: 'Backend tayyar hai.',
+    trackingLoading: 'Hand tracking libraries load ho rahi hain...',
+    trackingReady: 'Hand tracking tayyar hai.',
+    trackingMissing: 'Ek haath clearly dikhaiye.',
+    trackingError: 'Hand tracking fail ho gayi.',
+    cameraBlocked: 'Camera blocked hai.',
     outputLabel: 'Pehchana Gaya Sign',
     outputPlaceholder: 'Result yahan dikhai dega.',
     confidence: 'Confidence',
-    demoWord: 'Demo word',
-    browserNote: 'Web mode reliability ke liye simplified browser mode mein chal raha hai.',
-    liveReady: 'Browser preview live hai. Reliable judge demo ke liye demo buttons use karein.',
-    liveOffline: 'Camera preview live hai, lekin backend health check abhi offline hai.',
-    liveMissing: 'Camera preview live hai, lekin is deployment ke liye backend URL configured nahin hai.',
+    demoTitle: 'Demo Showcase',
+    historyTitle: 'Recent Detections',
+    historyEmpty: 'Abhi koi sign detect nahin hua.',
   },
 };
 
+function loadScript(urls, globalName) {
+  if (globalName && window[globalName]) {
+    return Promise.resolve(urls[0]);
+  }
+
+  const queue = [...urls];
+  return new Promise((resolve, reject) => {
+    const attempt = () => {
+      const next = queue.shift();
+      if (!next) {
+        reject(new Error(`Unable to load ${globalName}`));
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = next;
+      script.async = true;
+      script.onload = () => resolve(next);
+      script.onerror = () => {
+        script.remove();
+        attempt();
+      };
+      document.head.appendChild(script);
+    };
+
+    attempt();
+  });
+}
+
 export default function ModeAWebScreen() {
   const { theme, lang, isDark, setIsDark, setLang } = useContext(AppContext);
-  const t = LANG[lang];
+  const t = TEXT[lang];
 
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const streamRef = useRef(null);
+  const handsRef = useRef(null);
   const demoTimerRef = useRef(null);
+  const handsBaseRef = useRef('https://cdn.jsdelivr.net/npm/@mediapipe/hands/');
+  const loopActiveRef = useRef(false);
+  const busyRef = useRef(false);
+  const sendingRef = useRef(false);
+  const lastSendRef = useRef(0);
 
-  const [cameraState, setCameraState] = useState('waiting');
-  const [backendState, setBackendState] = useState('waiting');
   const [cameraStarted, setCameraStarted] = useState(false);
   const [signing, setSigning] = useState(false);
+  const [backendStatus, setBackendStatus] = useState(HAS_BACKEND_URL ? 'checking' : 'missing');
+  const [trackingStatus, setTrackingStatus] = useState('idle');
+  const [message, setMessage] = useState('');
   const [result, setResult] = useState(null);
-  const [demoPresetId, setDemoPresetId] = useState(null);
-  const [liveMessage, setLiveMessage] = useState('');
-
-  const statusText = useMemo(() => {
-    if (!HAS_BACKEND_URL) {
-      return t.backendMissing;
-    }
-
-    return backendState === 'ready' ? t.backendReady : t.backendOffline;
-  }, [backendState, t]);
-
-  const checkBackend = async () => {
-    if (!HAS_BACKEND_URL) {
-      setBackendState('missing');
-      return 'missing';
-    }
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = window.setTimeout(() => controller.abort(), 5000);
-      const response = await fetch(`${BACKEND_URL}/health`, { signal: controller.signal });
-      window.clearTimeout(timeoutId);
-      const data = await response.json();
-      const nextState = data?.status === 'healthy' ? 'ready' : 'offline';
-      setBackendState(nextState);
-      return nextState;
-    } catch {
-      setBackendState('offline');
-      return 'offline';
-    }
-  };
-
-  useEffect(() => {
-    if (Platform.OS !== 'web') {
-      return undefined;
-    }
-
-    checkBackend();
-    const intervalId = window.setInterval(checkBackend, 15000);
-
-    return () => {
-      window.clearInterval(intervalId);
-      stopDemo();
-      stopCamera();
-      window.speechSynthesis?.cancel?.();
-    };
-  }, []);
+  const [demoId, setDemoId] = useState(null);
+  const [history, setHistory] = useState([]);
 
   const speakText = (text) => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) {
+    if (!window.speechSynthesis || !text) {
       return;
     }
 
@@ -158,17 +155,54 @@ export default function ModeAWebScreen() {
     window.speechSynthesis.speak(utterance);
   };
 
+  const addHistory = (sign, confidence) => {
+    const display = lang === 'hi' ? (SIGN_TO_HINDI[sign] || sign) : sign;
+    setHistory((current) => [{ sign: display, confidence, at: new Date().toLocaleTimeString() }, ...current].slice(0, 8));
+  };
+
+  const checkBackend = async () => {
+    if (!HAS_BACKEND_URL) {
+      setBackendStatus('missing');
+      return 'missing';
+    }
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/health`);
+      const data = await response.json();
+      const next = data?.status === 'healthy' ? 'ready' : 'offline';
+      setBackendStatus(next);
+      return next;
+    } catch {
+      setBackendStatus('offline');
+      return 'offline';
+    }
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  };
+
   const stopDemo = () => {
     if (demoTimerRef.current) {
       window.clearInterval(demoTimerRef.current);
       demoTimerRef.current = null;
     }
-    setDemoPresetId(null);
+    setDemoId(null);
   };
 
   const stopCamera = () => {
+    loopActiveRef.current = false;
     setSigning(false);
-    setLiveMessage('');
+    stopDemo();
+    clearCanvas();
 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -180,99 +214,226 @@ export default function ModeAWebScreen() {
     }
 
     setCameraStarted(false);
-    setCameraState('waiting');
+    setTrackingStatus('idle');
+    setMessage('');
+  };
+
+  const sendPrediction = async (coords) => {
+    if (!signing || sendingRef.current || !HAS_BACKEND_URL) {
+      return;
+    }
+
+    sendingRef.current = true;
+    try {
+      const response = await fetch(`${BACKEND_URL}/predict`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ landmarks: coords }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Prediction failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (!data?.sign) {
+        return;
+      }
+
+      setResult({ sign: data.sign, confidence: data.confidence, mode: data.mode || 'model' });
+      setMessage(t.backendReady);
+      addHistory(data.sign, data.confidence);
+      if (data.confidence >= 80) {
+        speakText(lang === 'hi' ? (SIGN_TO_HINDI[data.sign] || data.sign) : data.sign);
+      }
+    } catch {
+      setBackendStatus('offline');
+      setMessage(t.backendOffline);
+    } finally {
+      sendingRef.current = false;
+    }
+  };
+
+  const onResults = (results) => {
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    if (!canvas || !video) {
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
+
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const landmarks = results.multiHandLandmarks?.[0];
+    if (!landmarks) {
+      setTrackingStatus(cameraStarted ? 'missing' : 'idle');
+      if (signing) {
+        setMessage(t.trackingMissing);
+      }
+      return;
+    }
+
+    window.drawConnectors(ctx, landmarks, window.HAND_CONNECTIONS || [], { color: '#22C7C9', lineWidth: 2 });
+    window.drawLandmarks(ctx, landmarks, { color: '#F59E0B', lineWidth: 1, radius: 3 });
+    setTrackingStatus('ready');
+    if (!signing) {
+      setMessage(t.trackingReady);
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastSendRef.current >= 800) {
+      lastSendRef.current = now;
+      sendPrediction(landmarks.flatMap((point) => [point.x, point.y, point.z]));
+    }
+  };
+
+  const startLoop = () => {
+    if (loopActiveRef.current) {
+      return;
+    }
+
+    loopActiveRef.current = true;
+    const tick = async () => {
+      if (!loopActiveRef.current) {
+        return;
+      }
+
+      const video = videoRef.current;
+      if (handsRef.current && video && video.readyState >= 2 && !busyRef.current) {
+        busyRef.current = true;
+        try {
+          await handsRef.current.send({ image: video });
+        } catch {
+          setTrackingStatus('error');
+          setMessage(t.trackingError);
+        } finally {
+          busyRef.current = false;
+        }
+      }
+
+      window.requestAnimationFrame(tick);
+    };
+
+    window.requestAnimationFrame(tick);
+  };
+
+  const ensureHands = async () => {
+    if (handsRef.current) {
+      return true;
+    }
+
+    setTrackingStatus('loading');
+    setMessage(t.trackingLoading);
+
+    try {
+      const handsUrl = await loadScript(HAND_SOURCES, 'Hands');
+      await loadScript(DRAWING_SOURCES, 'drawConnectors');
+      handsBaseRef.current = handsUrl.replace(/hands\.js(?:\?.*)?$/, '');
+
+      const hands = new window.Hands({
+        locateFile: (file) => `${handsBaseRef.current}${file}`,
+      });
+      hands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.7,
+        minTrackingConfidence: 0.5,
+      });
+      hands.onResults(onResults);
+      handsRef.current = hands;
+      setTrackingStatus('ready');
+      return true;
+    } catch {
+      setTrackingStatus('error');
+      setMessage(t.trackingError);
+      return false;
+    }
   };
 
   const startCamera = async () => {
     stopDemo();
-    setLiveMessage('');
-
     if (!navigator.mediaDevices?.getUserMedia) {
-      setCameraState('blocked');
+      setMessage(t.cameraBlocked);
       return false;
     }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'user',
-          width: { ideal: 960 },
-          height: { ideal: 720 },
-        },
+        video: { facingMode: 'user', width: { ideal: 960 }, height: { ideal: 720 } },
         audio: false,
       });
 
       streamRef.current = stream;
-
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
 
       setCameraStarted(true);
-      setCameraState('ready');
-      return true;
+      const ok = await ensureHands();
+      if (ok) {
+        startLoop();
+      }
+      return ok;
     } catch {
-      setCameraStarted(false);
-      setCameraState('blocked');
+      setMessage(t.cameraBlocked);
       return false;
     }
   };
 
-  const startSigning = async () => {
+  const clearAll = () => {
+    setSigning(false);
     stopDemo();
     setResult(null);
-
-    if (!cameraStarted) {
-      const cameraOk = await startCamera();
-      if (!cameraOk) {
-        setSigning(false);
-        return;
-      }
-    }
-
-    const nextBackendState = await checkBackend();
-
-    if (nextBackendState === 'missing') {
-      setSigning(true);
-      setLiveMessage(t.liveMissing);
-      return;
-    }
-
-    setSigning(true);
-    setLiveMessage(nextBackendState === 'ready' ? t.liveReady : t.liveOffline);
+    setHistory([]);
+    setMessage(cameraStarted ? t.trackingReady : '');
+    window.speechSynthesis?.cancel?.();
   };
 
   const stopSigning = () => {
     setSigning(false);
-    setLiveMessage('');
+    sendingRef.current = false;
+    setMessage(cameraStarted ? t.trackingReady : '');
   };
 
-  const clearAll = () => {
-    stopSigning();
+  const startSigning = async () => {
     stopDemo();
-    setResult(null);
-    window.speechSynthesis?.cancel?.();
+    if (!cameraStarted) {
+      const ok = await startCamera();
+      if (!ok) {
+        return;
+      }
+    }
+
+    const ok = await ensureHands();
+    if (!ok) {
+      return;
+    }
+
+    const nextBackend = await checkBackend();
+    setSigning(true);
+    setMessage(nextBackend === 'ready' ? t.backendReady : nextBackend === 'missing' ? t.backendMissing : t.backendOffline);
+    startLoop();
   };
 
   const runDemo = (preset) => {
-    stopSigning();
+    setSigning(false);
     stopDemo();
+    setDemoId(preset.id);
 
     let index = 0;
-    setDemoPresetId(preset.id);
-
-    const applyStep = () => {
+    const step = () => {
       const sign = preset.sequence[index];
       const confidence = Math.max(92, 98 - index);
-      setResult({
-        sign,
-        confidence,
-        mode: 'demo',
-        demoWord: preset.word,
-        step: index + 1,
-        totalSteps: preset.sequence.length,
-      });
+      setResult({ sign, confidence, mode: 'demo', demoWord: preset.word, step: index + 1, totalSteps: preset.sequence.length });
+      addHistory(sign, confidence);
 
       if (index === preset.sequence.length - 1) {
         window.clearInterval(demoTimerRef.current);
@@ -284,9 +445,21 @@ export default function ModeAWebScreen() {
       index += 1;
     };
 
-    applyStep();
-    demoTimerRef.current = window.setInterval(applyStep, 1000);
+    step();
+    demoTimerRef.current = window.setInterval(step, 1000);
   };
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') {
+      return undefined;
+    }
+
+    checkBackend();
+    return () => {
+      stopCamera();
+      stopDemo();
+    };
+  }, []);
 
   if (Platform.OS !== 'web') {
     return null;
@@ -294,26 +467,21 @@ export default function ModeAWebScreen() {
 
   return (
     <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.root, { backgroundColor: theme.bg }]}>
-      <View style={[styles.topBar, { borderColor: theme.border, backgroundColor: theme.card, shadowColor: theme.shadow }]}>
+      <View style={[styles.topBar, { backgroundColor: theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}>
         <View style={styles.logoRow}>
           <View style={[styles.logoMark, { backgroundColor: theme.accentABg, borderColor: theme.border }]}>
             <Text style={[styles.logoMarkText, { color: theme.accentA }]}>AI</Text>
           </View>
           <View>
             <Text style={[styles.logoName, { color: theme.text }]}>ISL Bridge</Text>
-            <Text style={[styles.logoSub, { color: theme.subtext }]}>{t.browserNote}</Text>
+            <Text style={[styles.logoSub, { color: theme.subtext }]}>{message || t.subtitle}</Text>
           </View>
         </View>
-
         <View style={styles.topButtons}>
-          <TouchableOpacity
-            style={[styles.smallBtn, { borderColor: theme.border, backgroundColor: theme.bg }]}
-            onPress={() => setIsDark((current) => !current)}>
+          <TouchableOpacity style={[styles.smallBtn, { borderColor: theme.border, backgroundColor: theme.bg }]} onPress={() => setIsDark((current) => !current)}>
             <Text style={[styles.smallBtnText, { color: theme.text }]}>{isDark ? 'Light' : 'Dark'} Theme</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.smallBtn, { borderColor: theme.accentA, backgroundColor: theme.bg }]}
-            onPress={() => setLang((current) => (current === 'en' ? 'hi' : 'en'))}>
+          <TouchableOpacity style={[styles.smallBtn, { borderColor: theme.accentA, backgroundColor: theme.bg }]} onPress={() => setLang((current) => (current === 'en' ? 'hi' : 'en'))}>
             <Text style={[styles.smallBtnText, { color: theme.accentA }]}>{lang === 'en' ? 'Hindi' : 'English'}</Text>
           </TouchableOpacity>
         </View>
@@ -328,86 +496,46 @@ export default function ModeAWebScreen() {
           </View>
 
           <View style={[styles.cameraCard, { backgroundColor: theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}>
-            <View style={[styles.cameraBadge, { backgroundColor: theme.bg }]}>
-              <Text style={[styles.cameraBadgeText, { color: cameraState === 'ready' ? theme.accentA : theme.subtext }]}>
-                {cameraState === 'ready' ? t.cameraReady : cameraState === 'blocked' ? t.cameraBlocked : t.cameraWaiting}
-              </Text>
-            </View>
-
             <div style={videoShellStyle(theme)}>
               <video ref={videoRef} playsInline muted autoPlay style={videoStyle} />
-              {!cameraStarted && (
+              <canvas ref={canvasRef} style={canvasStyle} />
+              {!cameraStarted ? (
                 <div style={videoOverlayStyle(theme)}>
                   <div style={videoOverlayCardStyle(theme)}>
                     <div style={cameraIconStyle}>CAM</div>
-                    <div style={cameraOverlayTextStyle(theme)}>
-                      {cameraState === 'blocked' ? t.cameraBlocked : t.cameraWaiting}
-                    </div>
+                    <div style={cameraOverlayTextStyle(theme)}>{message || t.startCamera}</div>
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
 
             <View style={styles.actionRow}>
-              <TouchableOpacity
-                style={[styles.primaryBtn, { backgroundColor: cameraStarted ? theme.card : theme.accentA, borderColor: theme.accentA }]}
-                onPress={cameraStarted ? stopCamera : startCamera}>
-                <Text style={[styles.primaryBtnText, { color: cameraStarted ? theme.accentA : '#FFFFFF' }]}>
-                  {cameraStarted ? t.stopCamera : t.startCamera}
-                </Text>
+              <TouchableOpacity style={[styles.primaryBtn, { backgroundColor: cameraStarted ? theme.card : theme.accentA, borderColor: theme.accentA }]} onPress={cameraStarted ? stopCamera : startCamera}>
+                <Text style={[styles.primaryBtnText, { color: cameraStarted ? theme.accentA : '#FFFFFF' }]}>{cameraStarted ? t.stopCamera : t.startCamera}</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.primaryBtn, { backgroundColor: signing ? theme.card : theme.accentB, borderColor: theme.accentB }]}
-                onPress={signing ? stopSigning : startSigning}>
-                <Text style={[styles.primaryBtnText, { color: signing ? theme.accentB : '#FFFFFF' }]}>
-                  {signing ? t.stopSigning : t.startSigning}
-                </Text>
+              <TouchableOpacity style={[styles.primaryBtn, { backgroundColor: signing ? theme.card : theme.accentB, borderColor: theme.accentB }]} onPress={signing ? stopSigning : startSigning}>
+                <Text style={[styles.primaryBtnText, { color: signing ? theme.accentB : '#FFFFFF' }]}>{signing ? t.stopSigning : t.startSigning}</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.clearBtn, { backgroundColor: theme.bg, borderColor: theme.border }]}
-                onPress={clearAll}>
+              <TouchableOpacity style={[styles.clearBtn, { backgroundColor: theme.bg, borderColor: theme.border }]} onPress={clearAll}>
                 <Text style={[styles.clearBtnText, { color: theme.text }]}>{t.clear}</Text>
               </TouchableOpacity>
             </View>
-
-            {liveMessage ? (
-              <Text style={[styles.liveNote, { color: theme.subtext }]}>{liveMessage}</Text>
-            ) : null}
           </View>
         </View>
 
         <View style={styles.rightColumn}>
           <View style={[styles.sideCard, { backgroundColor: theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}>
             <Text style={[styles.cardLabel, { color: theme.subtext }]}>System Status</Text>
-            <Text style={[styles.sideStatus, { color: cameraState === 'ready' ? theme.accentA : theme.subtext }]}>
-              Camera: {cameraState === 'ready' ? t.cameraReady : cameraState === 'blocked' ? t.cameraBlocked : t.cameraWaiting}
-            </Text>
-            <Text style={[styles.sideStatus, { color: backendState === 'ready' ? theme.accentA : theme.subtext }]}>
-              Backend: {statusText}
-            </Text>
-            <Text style={[styles.sideNote, { color: theme.subtext }]}>Live browser mode is simplified so the demo stays responsive and clickable.</Text>
+            <Text style={[styles.sideStatus, { color: theme.text }]}>Backend: {backendStatus === 'ready' ? t.backendReady : backendStatus === 'missing' ? t.backendMissing : t.backendOffline}</Text>
+            <Text style={[styles.sideStatus, { color: trackingStatus === 'ready' ? theme.accentA : trackingStatus === 'error' ? '#F72585' : theme.subtext }]}>Tracking: {trackingStatus === 'loading' ? t.trackingLoading : trackingStatus === 'ready' ? t.trackingReady : trackingStatus === 'missing' ? t.trackingMissing : trackingStatus === 'error' ? t.trackingError : '-'}</Text>
           </View>
 
           <View style={[styles.sideCard, { backgroundColor: theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}>
             <Text style={[styles.cardLabel, { color: theme.subtext }]}>{t.demoTitle}</Text>
-            <Text style={[styles.sideNote, { color: theme.subtext }]}>{t.demoHint}</Text>
             <View style={styles.demoGrid}>
               {DEMO_PRESETS.map((preset) => (
-                <TouchableOpacity
-                  key={preset.id}
-                  style={[
-                    styles.demoBtn,
-                    {
-                      borderColor: demoPresetId === preset.id ? theme.accentA : theme.border,
-                      backgroundColor: demoPresetId === preset.id ? theme.accentABg : theme.bg,
-                    },
-                  ]}
-                  onPress={() => runDemo(preset)}>
-                  <Text style={[styles.demoBtnText, { color: demoPresetId === preset.id ? theme.accentA : theme.text }]}>
-                    {preset.label}
-                  </Text>
+                <TouchableOpacity key={preset.id} style={[styles.demoBtn, { borderColor: demoId === preset.id ? theme.accentA : theme.border, backgroundColor: demoId === preset.id ? theme.accentABg : theme.bg }]} onPress={() => runDemo(preset)}>
+                  <Text style={[styles.demoBtnText, { color: demoId === preset.id ? theme.accentA : theme.text }]}>{preset.label}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -417,34 +545,35 @@ export default function ModeAWebScreen() {
             <Text style={[styles.cardLabel, { color: theme.subtext }]}>{t.outputLabel}</Text>
             {result ? (
               <>
-                <Text style={[styles.outputText, { color: theme.text }]}>
-                  {lang === 'hi' ? (SIGN_TO_HINDI[result.sign] || result.sign) : result.sign}
-                </Text>
-                {result.demoWord && (
-                  <Text style={[styles.sideNote, { color: theme.subtext }]}>
-                    {t.demoWord}: {result.demoWord} ({result.step}/{result.totalSteps})
-                  </Text>
-                )}
+                <Text style={[styles.outputText, { color: theme.text }]}>{lang === 'hi' ? (SIGN_TO_HINDI[result.sign] || result.sign) : result.sign}</Text>
+                {result.demoWord ? <Text style={[styles.sideNote, { color: theme.subtext }]}>{result.demoWord} ({result.step}/{result.totalSteps})</Text> : null}
                 <View style={styles.metaRow}>
                   <View style={[styles.metaBadge, { borderColor: theme.accentA, backgroundColor: theme.accentABg }]}>
-                    <Text style={[styles.metaBadgeText, { color: theme.accentA }]}>
-                      {t.confidence}: {result.confidence}%
-                    </Text>
+                    <Text style={[styles.metaBadgeText, { color: theme.accentA }]}>{t.confidence}: {result.confidence}%</Text>
                   </View>
                   <View style={[styles.metaBadge, { borderColor: theme.border, backgroundColor: theme.bg }]}>
-                    <Text style={[styles.metaBadgeText, { color: theme.subtext }]}>
-                      {result.mode === 'demo' ? 'Demo' : 'Preview'}
-                    </Text>
+                    <Text style={[styles.metaBadgeText, { color: theme.subtext }]}>{result.mode === 'demo' ? 'Demo' : 'AI'}</Text>
                   </View>
                 </View>
-                <TouchableOpacity
-                  style={[styles.speakBtn, { borderColor: theme.accentA, backgroundColor: theme.accentABg }]}
-                  onPress={() => speakText(result.demoWord || result.sign)}>
-                  <Text style={[styles.speakBtnText, { color: theme.accentA }]}>Speak</Text>
-                </TouchableOpacity>
               </>
             ) : (
               <Text style={[styles.sideNote, { color: theme.subtext }]}>{t.outputPlaceholder}</Text>
+            )}
+          </View>
+
+          <View style={[styles.sideCard, { backgroundColor: theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}>
+            <Text style={[styles.cardLabel, { color: theme.subtext }]}>{t.historyTitle}</Text>
+            {history.length > 0 ? (
+              <View style={styles.historyList}>
+                {history.map((entry, index) => (
+                  <View key={`${entry.sign}-${entry.at}-${index}`} style={[styles.historyItem, { borderColor: theme.border, backgroundColor: theme.bg }]}>
+                    <Text style={[styles.historySign, { color: theme.text }]}>{entry.sign}</Text>
+                    <Text style={[styles.historyMeta, { color: theme.subtext }]}>{entry.confidence}% • {entry.at}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={[styles.sideNote, { color: theme.subtext }]}>{t.historyEmpty}</Text>
             )}
           </View>
         </View>
@@ -471,6 +600,15 @@ const videoStyle = {
   objectFit: 'cover',
   display: 'block',
   transform: 'scaleX(-1)',
+};
+
+const canvasStyle = {
+  position: 'absolute',
+  inset: 0,
+  width: '100%',
+  height: '100%',
+  transform: 'scaleX(-1)',
+  pointerEvents: 'none',
 };
 
 function videoOverlayStyle(theme) {
@@ -516,10 +654,7 @@ function cameraOverlayTextStyle(theme) {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    padding: 18,
-    gap: 18,
-  },
+  root: { padding: 18, gap: 18 },
   topBar: {
     borderWidth: 1,
     borderRadius: 28,
@@ -533,234 +668,40 @@ const styles = StyleSheet.create({
     shadowRadius: 36,
     elevation: 10,
   },
-  logoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  logoMark: {
-    width: 58,
-    height: 58,
-    borderRadius: 18,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoMarkText: {
-    fontSize: 20,
-    fontWeight: '800',
-    fontFamily: WEB_DISPLAY_FONT,
-  },
-  logoName: {
-    fontSize: 18,
-    fontWeight: '800',
-    fontFamily: WEB_DISPLAY_FONT,
-  },
-  logoSub: {
-    fontSize: 12,
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  topButtons: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  smallBtn: {
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    cursor: 'pointer',
-  },
-  smallBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  mainGrid: {
-    flexDirection: 'row',
-    gap: 18,
-    alignItems: 'flex-start',
-    flexWrap: 'wrap',
-  },
-  leftColumn: {
-    flex: 1.25,
-    minWidth: 320,
-    gap: 18,
-  },
-  rightColumn: {
-    flex: 0.85,
-    minWidth: 300,
-    gap: 18,
-  },
-  heroCard: {
-    borderWidth: 1,
-    borderRadius: 28,
-    padding: 22,
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.12,
-    shadowRadius: 36,
-    elevation: 10,
-  },
-  heroEyebrow: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 1.6,
-    marginBottom: 8,
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '800',
-    marginBottom: 8,
-    fontFamily: WEB_DISPLAY_FONT,
-  },
-  subtitle: {
-    fontSize: 14,
-    lineHeight: 22,
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  cameraCard: {
-    borderWidth: 1,
-    borderRadius: 28,
-    padding: 18,
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.12,
-    shadowRadius: 36,
-    elevation: 10,
-  },
-  cameraBadge: {
-    alignSelf: 'flex-start',
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 14,
-  },
-  cameraBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 16,
-    flexWrap: 'wrap',
-  },
-  primaryBtn: {
-    flex: 1,
-    minWidth: 150,
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    cursor: 'pointer',
-  },
-  primaryBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  clearBtn: {
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    alignItems: 'center',
-    cursor: 'pointer',
-  },
-  clearBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  liveNote: {
-    fontSize: 13,
-    lineHeight: 20,
-    marginTop: 14,
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  sideCard: {
-    borderWidth: 1,
-    borderRadius: 28,
-    padding: 18,
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.12,
-    shadowRadius: 36,
-    elevation: 10,
-  },
-  cardLabel: {
-    fontSize: 10,
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginBottom: 12,
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  sideStatus: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 8,
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  sideNote: {
-    fontSize: 13,
-    lineHeight: 20,
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  demoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  demoBtn: {
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    minWidth: 74,
-    alignItems: 'center',
-    cursor: 'pointer',
-  },
-  demoBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  outputText: {
-    fontSize: 40,
-    fontWeight: '800',
-    marginBottom: 10,
-    fontFamily: WEB_DISPLAY_FONT,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    gap: 8,
-    flexWrap: 'wrap',
-    marginTop: 14,
-  },
-  metaBadge: {
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  metaBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    fontFamily: WEB_FONT_FAMILY,
-  },
-  speakBtn: {
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    alignSelf: 'flex-start',
-    marginTop: 14,
-    cursor: 'pointer',
-  },
-  speakBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
-    fontFamily: WEB_FONT_FAMILY,
-  },
+  logoRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  logoMark: { width: 58, height: 58, borderRadius: 18, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  logoMarkText: { fontSize: 20, fontWeight: '800', fontFamily: WEB_DISPLAY_FONT },
+  logoName: { fontSize: 18, fontWeight: '800', fontFamily: WEB_DISPLAY_FONT },
+  logoSub: { fontSize: 12, fontFamily: WEB_FONT_FAMILY, maxWidth: 420 },
+  topButtons: { flexDirection: 'row', gap: 10 },
+  smallBtn: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 10, cursor: 'pointer' },
+  smallBtnText: { fontSize: 12, fontWeight: '700', fontFamily: WEB_FONT_FAMILY },
+  mainGrid: { flexDirection: 'row', gap: 18, alignItems: 'flex-start', flexWrap: 'wrap' },
+  leftColumn: { flex: 1.25, minWidth: 320, gap: 18 },
+  rightColumn: { flex: 0.85, minWidth: 300, gap: 18 },
+  heroCard: { borderWidth: 1, borderRadius: 28, padding: 22, shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.12, shadowRadius: 36, elevation: 10 },
+  heroEyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 1.6, marginBottom: 8, fontFamily: WEB_FONT_FAMILY },
+  title: { fontSize: 32, fontWeight: '800', marginBottom: 8, fontFamily: WEB_DISPLAY_FONT },
+  subtitle: { fontSize: 14, lineHeight: 22, fontFamily: WEB_FONT_FAMILY },
+  cameraCard: { borderWidth: 1, borderRadius: 28, padding: 18, shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.12, shadowRadius: 36, elevation: 10 },
+  actionRow: { flexDirection: 'row', gap: 10, marginTop: 16, flexWrap: 'wrap' },
+  primaryBtn: { flex: 1, minWidth: 150, borderWidth: 1, borderRadius: 999, paddingVertical: 14, paddingHorizontal: 16, alignItems: 'center', cursor: 'pointer' },
+  primaryBtnText: { fontSize: 14, fontWeight: '700', fontFamily: WEB_FONT_FAMILY },
+  clearBtn: { borderWidth: 1, borderRadius: 999, paddingVertical: 14, paddingHorizontal: 18, alignItems: 'center', cursor: 'pointer' },
+  clearBtnText: { fontSize: 14, fontWeight: '700', fontFamily: WEB_FONT_FAMILY },
+  sideCard: { borderWidth: 1, borderRadius: 28, padding: 18, shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.12, shadowRadius: 36, elevation: 10 },
+  cardLabel: { fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12, fontFamily: WEB_FONT_FAMILY },
+  sideStatus: { fontSize: 14, fontWeight: '700', marginBottom: 8, fontFamily: WEB_FONT_FAMILY },
+  sideNote: { fontSize: 13, lineHeight: 20, fontFamily: WEB_FONT_FAMILY },
+  demoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  demoBtn: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 10, minWidth: 74, alignItems: 'center', cursor: 'pointer' },
+  demoBtnText: { fontSize: 12, fontWeight: '700', fontFamily: WEB_FONT_FAMILY },
+  outputText: { fontSize: 40, fontWeight: '800', marginBottom: 10, fontFamily: WEB_DISPLAY_FONT },
+  metaRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 14 },
+  metaBadge: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
+  metaBadgeText: { fontSize: 11, fontWeight: '700', fontFamily: WEB_FONT_FAMILY },
+  historyList: { gap: 10 },
+  historyItem: { borderWidth: 1, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 12 },
+  historySign: { fontSize: 16, fontWeight: '800', fontFamily: WEB_DISPLAY_FONT },
+  historyMeta: { fontSize: 12, marginTop: 4, fontFamily: WEB_FONT_FAMILY },
 });
