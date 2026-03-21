@@ -756,7 +756,9 @@ function App() {
           { hands },
         ];
 
-        const demoGesture = detectDemoGesture(sequenceBufferRef.current);
+        const wordMode = recognitionTarget === "general";
+        const canUseBackendWordTarget = backendHealth.supportedTargets.includes("general");
+        const demoGesture = wordMode ? detectDemoGesture(sequenceBufferRef.current) : null;
         if (demoGesture) {
           const nextWindow = [
             ...demoPredictionWindowRef.current.slice(-(STABLE_PREDICTION_WINDOW - 1)),
@@ -772,6 +774,9 @@ function App() {
           }
         } else {
           demoPredictionWindowRef.current = [];
+          if (wordMode && !canUseBackendWordTarget) {
+            setStatus("Demo word mode ready");
+          }
         }
 
         const now = Date.now();
@@ -779,7 +784,8 @@ function App() {
           !demoGesture &&
           !inFlightRef.current &&
           sequenceBufferRef.current.length >= MIN_SEQUENCE_FRAMES &&
-          now - lastPredictionRef.current > 650
+          now - lastPredictionRef.current > 650 &&
+          (!wordMode || canUseBackendWordTarget)
         ) {
           inFlightRef.current = true;
           lastPredictionRef.current = now;
@@ -910,10 +916,7 @@ function App() {
     {
       id: "general",
       label: language === "hi" ? "ÃƒÂ Ã‚Â¤Ã‚Â¶ÃƒÂ Ã‚Â¤Ã‚Â¬ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¦ / ÃƒÂ Ã‚Â¤Ã‚ÂµÃƒÂ Ã‚Â¤Ã‚Â¾ÃƒÂ Ã‚Â¤Ã¢â‚¬Â¢ÃƒÂ Ã‚Â¥Ã‚ÂÃƒÂ Ã‚Â¤Ã‚Â¯" : "Words / Phrases",
-      disabled:
-        backendHealth.checked &&
-        backendHealth.ok &&
-        !backendHealth.supportedTargets.includes("general"),
+      disabled: false,
     },
     {
       id: "alphabet",
